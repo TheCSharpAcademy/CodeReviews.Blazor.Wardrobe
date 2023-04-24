@@ -1,0 +1,63 @@
+﻿@page "/deleteItem/{id}"
+@using Blazor.WardrobeInventory.Shared.Models
+@inject HttpClient _httpClient
+@inject NavigationManager navigationManager
+
+<PageTitle>Wardrobe Inventory</PageTitle>
+
+<h1 class="text-md-center">Are you sure you want to delete this item?</h1>
+
+<div>
+    @if (item != null)
+    {
+        <table class="table-bordered">
+            <thead>
+                <tr>
+                    <th width="20%">Type</th>
+                    <th width="40%">Color</th>
+                    <th width="40%">Image</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        @item.Type
+                    </td>
+                    <td>@item.Color</td>
+                    <td> <img src=@item.ImgData /> </td>
+                </tr>
+            </tbody>
+        </table>
+    }
+
+</div>
+
+<button class="btn btn-danger" OnClick=@OnDetele>Delete</button>
+
+@if (error)
+{
+    <p class="text-danger"> There was an error deleting that item...</p>
+}
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+    WardrobeItem item = new WardrobeItem();
+    private bool error = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        item = await _httpClient.GetFromJsonAsync<WardrobeItem>($"api/wardrobe/{id}");
+    }
+
+    private async void OnDetele(){
+        var response = await _httpClient.DeleteAsync($"api/wardrobe/{id}");
+        if(response.IsSuccessStatusCode){
+            navigationManager.NavigateTo("/");
+        }
+        else{
+            error = true;
+            StateHasChanged();
+        }
+    }
+}

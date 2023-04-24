@@ -1,0 +1,112 @@
+﻿@page "/additem"
+@using Blazor.WardrobeInventory.Shared.Models
+@inject HttpClient _httpClient
+@inject NavigationManager navigationManager
+
+<h3>AddItem</h3>
+<EditForm Model=@Item OnValidSubmit=@OnAdd>
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="form-group">
+        <label for="Type">Type</label>
+        <InputText @bind-Value=Item.Type class="form-control" id="Type" placeholder="Shirt/Jeans/etc..." />
+    </div>
+    <div class="form-group">
+        <label for="Color">Color</label>
+        <InputText @bind-Value=Item.Color class="form-control" id="Color" placeholder="White" />
+    </div>
+
+    <h4>Upload image</h4>
+    <p>
+        <label>
+            Upload an image of up to @maxFileSize bytes:
+            <InputFile OnChange="@LoadFile" />
+        </label>
+    </p>
+    @if (isLoading)
+    {
+        <p>Uploading...</p>
+    }
+    else
+    {
+        <ul>
+            @foreach (var file in loadedFiles)
+            {
+                <li>
+                    <ul>
+                        <li>Name: @file.Name</li>
+                        <li>Last modified: @file.LastModified.ToString()</li>
+                        <li>Size (bytes): @file.Size</li>
+                        <li>Content type: @file.ContentType</li>
+                        <li> <img class="preview" src="@Item.ImgData" /> </li>
+                    </ul>
+                </li>
+            }
+        </ul>
+    }
+
+    <input type="submit" class="btn btn-primary" value="Save" />
+
+    @if (error)
+    {
+        <p class="text-danger"> There was an error saving that item in the Database, please try again</p>
+    }
+</EditForm>
+
+
+@code {
+    private string? type;
+    private string? color;
+    private bool error;
+    WardrobeItem Item = new WardrobeItem();
+
+    private async void OnAdd()
+    {
+        error = false;
+
+        var response = await _httpClient.PostAsJsonAsync("api/Wardrobe", Item);
+        WardrobeItem itemResponse = await response.Content.ReadFromJsonAsync<WardrobeItem>();
+        if (response.IsSuccessStatusCode)
+        {
+            navigationManager.NavigateTo("/");
+        }
+        else
+        {
+            error = true;
+            StateHasChanged();
+        }
+
+    }
+}
+
+@code {
+    //image upload code
+    private List<IBrowserFile> loadedFiles = new();
+    private long maxFileSize = 1024 * 15;
+    private int maxAllowedFiles = 1;
+    private bool isLoading;
+
+    private async Task LoadFile(InputFileChangeEventArgs e)
+    {
+        isLoading = true;
+        StateHasChanged();
+        loadedFiles.Clear();
+        var imgFile = e.File;
+
+        //read that file in a byte array
+        var buffer = new byte[imgFile.Size];
+        await imgFile.OpenReadStream(1512000).ReadAsync(buffer);
+
+        //convert byte array to base 64 string
+        Item.ImgData = $"data:image;base64,{Convert.ToBase64String(buffer)}";
+
+        foreach (var file in e.GetMultipleFiles(maxAllowedFiles))
+        {
+            loadedFiles.Add(file);
+        }
+
+        isLoading = false;
+        StateHasChanged();
+    }
+}
