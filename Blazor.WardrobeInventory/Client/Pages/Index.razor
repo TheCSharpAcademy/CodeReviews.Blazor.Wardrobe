@@ -1,0 +1,51 @@
+﻿@page "/"
+@using Blazor.WardrobeInventory.Shared.Models
+@inject HttpClient _httpClient
+
+<PageTitle>Wardrobe Inventory</PageTitle>
+
+<h1>Wardrobe Inventory</h1>
+
+<div>
+    <a href="/addItem"> Add New Item</a>
+    @if (itemList != null)
+    {
+        <table class="table-bordered">
+            <thead>
+                <tr>
+                    <th width="20%">Type</th>
+                    <th width="20%">Color</th>
+                    <th width="30%">Image</th>
+                    <th width="30%">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in itemList)
+                {
+                    <tr>
+                        <td>
+                            @item.Type
+                        </td>
+                        <td>@item.Color</td>
+                        <td> <img class="preview" src="@item.ImgData" /> </td>
+                        <td>
+                            <a href="/editItem/@item.Id">Edit</a> |
+                            <a href="/deleteItem/@item.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+</div>
+
+@code {
+    List<WardrobeItem> itemList = new List<WardrobeItem>();
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await _httpClient.GetAsync("api/wardrobe");
+        response.EnsureSuccessStatusCode();
+        itemList = await response.Content.ReadFromJsonAsync<List<WardrobeItem>>();
+    }
+}
