@@ -1,0 +1,55 @@
+﻿@page "/deleteclothe/{Id}"
+@using Wardrobe.Model
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JsRuntime
+@inject IWardrobeService wardrobeService
+
+<h2>Delete Clothe</h2>
+@if (clothe != null)
+{
+    <p>Are you sure you want to remove this clothe: <b>@clothe.Name</b></p>
+    <div class="row">
+        <table class="table">
+            <tr>
+                <td>Name</td>
+                <td>@clothe.Name</td>
+            </tr>
+            <tr>
+                <td>Color</td>
+                <td>@clothe.Color</td>
+            </tr>
+            <tr>
+                <td>Image</td>
+                <td><img src="/SiteImages/@clothe.ImagePath" alt="Preview" style="max-width: 200px; max-height: 200px;" /></td>
+            </tr>
+        </table>
+    </div>
+}
+<div class="row">
+    <div class="col-md-4">
+        <div class="form-group">
+            <input type="button" class="btn btn-primary" @onclick="@Delete" value="Delete" />
+            <input type="button" class="btn" @onclick="@Cancel" value="Cancel" />
+        </div>
+    </div>
+</div>
+@code {
+    [Parameter]
+    public string Id { get; set; }
+
+    WardrobeViewModel clothe = new WardrobeViewModel();
+    protected override async Task OnInitializedAsync()
+    {
+        clothe = await wardrobeService.GetClothe(int.Parse(Id));
+    }
+    protected async Task Delete()
+    {
+        await wardrobeService.DeleteClothe(int.Parse(Id));
+        NavigationManager.NavigateTo("Wardrobe");
+    }
+    void Cancel()
+    {
+        NavigationManager.NavigateTo("Wardrobe");
+    }
+}

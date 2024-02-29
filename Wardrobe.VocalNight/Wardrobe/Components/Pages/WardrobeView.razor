@@ -1,0 +1,49 @@
+﻿@page "/wardrobe"
+@using Wardrobe.Model
+@inject HttpClient _httpClient
+@inject IWardrobeService wardrobeService
+
+<PageTitle>Wardrobe List</PageTitle>
+
+<h3>Wardrobe List</h3>
+
+<div>
+    <a href="/addclothe"> Add more clothes</a>
+    @if (wardrobeList != null)
+    {
+        <table class="table-bordered">
+            <thead>
+                <tr>
+                    <th width="30%">Name</th>
+                    <th width="20%">Color</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var p in wardrobeList)
+                {
+                    <tr>
+                        <td>
+                            @p.Name
+                        </td>
+                        <td>@p.Color</td>
+                        <td>
+                            <a href="/editClothe/@p.Id">Edit</a> |
+                            <a href="/deleteClothe/@p.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
+
+
+
+@code {
+    List<WardrobeViewModel> wardrobeList = new List<WardrobeViewModel>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        wardrobeList = await wardrobeService.GetAllClothes();
+    }
+}
