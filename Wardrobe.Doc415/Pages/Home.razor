@@ -51,7 +51,7 @@ else
 
     private Cloth? currentCloth;
 
-    protected override async void OnInitialized ()
+    protected async override Task OnInitializedAsync ()
     {
         myClothes = await controller.GetAllClothes();
     }
