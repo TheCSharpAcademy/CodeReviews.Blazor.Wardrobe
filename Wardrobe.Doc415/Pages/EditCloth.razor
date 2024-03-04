@@ -1,0 +1,132 @@
+﻿@page "/Cloth"
+@page "/Cloth/{id:int}"
+@using Models
+@inject NavigationManager NavigationManager
+@inject WardrobeController controller
+
+<PageTitle> @title</PageTitle>
+<h3>@title</h3>
+
+@if (newCloth is null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="row">
+        <div class="col-sm-4">
+            <EditForm Model="@newCloth" OnValidSubmit="HandleSubmit" >
+                <DataAnnotationsValidator />
+                <ValidationSummary/>
+                 <div class="mb-3">
+                    <label for="name" class="form-label">Name</label>
+                    <InputText id="name" @bind-Value="newCloth.Name" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    <InputText id="category" @bind-Value="newCloth.Category" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="color" class="form-label">Color</label>
+                    <InputText id="color" @bind-Value="newCloth.Color" class="form-control"></InputText>
+                </div>
+                <div class="mb-3">
+                    <label for="weather" class="form-label">For weather</label>
+                    <InputText id="weather" @bind-Value="newCloth.Weather" class="form-control"></InputText>
+                </div>
+                
+                <div class="mb-3">
+                    @if (newCloth.ImageUrl != null)
+                    {
+                        <img src="@newCloth.ImageUrl" />
+                    }
+                    <label for="imageurl" class="form-label">Upload Image: </label>
+                    <InputFile id="imageurl" OnChange="FileUploaded" accept=".png,.jpeg,.jpg" />
+
+                </div>
+         
+                <button type="submit"  class="btn btn-outline-primary">Save</button>
+                <button type="button" @onclick="@ReturnToHome" class="btn btn-outline-warning">Cancel</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private Cloth newCloth;
+    private string title;
+
+    public string imageUrl { get; set; }
+
+    protected override async void OnParametersSet ()
+    {
+        if (Id is not null)
+        {
+            Cloth foundCloth = await controller.GetClothById(Id.Value);
+            newCloth = new()
+                {
+                    Id = foundCloth.Id,
+                    Name = foundCloth.Name,
+                    Color = foundCloth.Color,
+                    Weather = foundCloth.Weather,
+                    Category = foundCloth.Category,
+                    ImageUrl = foundCloth.ImageUrl
+                };
+            title = $"Edit {newCloth.Name}";
+        }
+        else
+        {
+            newCloth = new()
+                {
+                    Name = string.Empty,
+                    Category = string.Empty,
+                    Weather = string.Empty,
+                    ImageUrl = string.Empty,
+                    Color = string.Empty
+                };
+            title = "Add new cloth";
+        }
+
+    }
+
+    private async void HandleSubmit ()
+    {
+        if (newCloth.Id == 0)
+        {
+            await controller.AddCloth(newCloth);
+        }
+        else
+        {
+           await controller.UpdateCloth(newCloth);
+        }
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void ReturnToHome()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    public async Task FileUploaded(InputFileChangeEventArgs e)
+    {
+        var fileFormat = "image/png";
+        var imageFile = await e.File.RequestImageFileAsync(fileFormat,250,250);
+       
+        if (imageFile != null)
+        {
+            try
+            {
+                var buffer = new byte[imageFile.Size];
+                await imageFile.OpenReadStream().ReadAsync(buffer);
+                newCloth.ImageUrl = $"data:{fileFormat};base64,{Convert.ToBase64String(buffer)}";
+            }
+            catch(Exception exception)
+            {
+                Console.Error.WriteLine( exception.Message);
+            }
+        }
+    }
+}
