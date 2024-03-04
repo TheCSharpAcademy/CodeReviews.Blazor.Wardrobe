@@ -1,11 +1,22 @@
 using Buutyful.Wardrobe.Client.Pages;
 using Buutyful.Wardrobe.Components;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Buutyful.Wardrobe.Data;
+using Buutyful.Wardrobe;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Services.AddDbContext<BuutyfulWardrobeContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("BuutyfulWardrobeContext") ?? 
+    throw new InvalidOperationException("Connection string 'BuutyfulWardrobeContext' not found.")));
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
+
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -21,6 +32,12 @@ else
     app.UseHsts();
 }
 
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+};
+
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
@@ -29,5 +46,7 @@ app.UseAntiforgery();
 app.MapRazorComponents<App>()
     .AddInteractiveWebAssemblyRenderMode()
     .AddAdditionalAssemblies(typeof(Buutyful.Wardrobe.Client._Imports).Assembly);
+
+app.MapWardrobeItemEndpoints();
 
 app.Run();
