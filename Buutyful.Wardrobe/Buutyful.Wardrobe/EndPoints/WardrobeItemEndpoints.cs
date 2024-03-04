@@ -2,12 +2,11 @@
 using Buutyful.Wardrobe.Data;
 using Buutyful.Wardrobe.Models;
 using Microsoft.AspNetCore.Http.HttpResults;
-using Microsoft.AspNetCore.OpenApi;
-namespace Buutyful.Wardrobe;
+namespace Buutyful.Wardrobe.EndPoints;
 
 public static class WardrobeItemEndpoints
 {
-    public static void MapWardrobeItemEndpoints (this IEndpointRouteBuilder routes)
+    public static void MapWardrobeItemEndpoints(this IEndpointRouteBuilder routes)
     {
         var group = routes.MapGroup("/api/WardrobeItem").WithTags(nameof(WardrobeItem));
 
@@ -35,7 +34,10 @@ public static class WardrobeItemEndpoints
                 .Where(model => model.Id == id)
                 .ExecuteUpdateAsync(setters => setters
                     .SetProperty(m => m.Id, wardrobeItem.Id)
-                    .SetProperty(m => m.ImgUrl, wardrobeItem.ImgUrl));
+                    .SetProperty(m => m.WardrobeId, wardrobeItem.WardrobeId)
+                    .SetProperty(m => m.ImgUrl, wardrobeItem.ImgUrl)
+                    .SetProperty(m => m.ClothingType, wardrobeItem.ClothingType)
+                    .SetProperty(m => m.Description, wardrobeItem.Description));
             return affected == 1 ? TypedResults.Ok() : TypedResults.NotFound();
         })
         .WithName("UpdateWardrobeItem")
@@ -45,7 +47,7 @@ public static class WardrobeItemEndpoints
         {
             db.WardrobeItem.Add(wardrobeItem);
             await db.SaveChangesAsync();
-            return TypedResults.Created($"/api/WardrobeItem/{wardrobeItem.Id}",wardrobeItem);
+            return TypedResults.Created($"/api/WardrobeItem/{wardrobeItem.Id}", wardrobeItem);
         })
         .WithName("CreateWardrobeItem")
         .WithOpenApi();

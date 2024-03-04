@@ -1,9 +1,7 @@
-using Buutyful.Wardrobe.Client.Pages;
 using Buutyful.Wardrobe.Components;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
 using Buutyful.Wardrobe.Data;
-using Buutyful.Wardrobe;
+using Buutyful.Wardrobe.EndPoints;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddDbContext<BuutyfulWardrobeContext>(options =>
