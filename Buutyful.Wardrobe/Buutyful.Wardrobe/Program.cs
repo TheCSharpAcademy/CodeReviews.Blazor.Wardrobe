@@ -2,21 +2,18 @@ using Buutyful.Wardrobe.Components;
 using Microsoft.EntityFrameworkCore;
 using Buutyful.Wardrobe.Data;
 using Buutyful.Wardrobe.EndPoints;
-using Buutyful.Wardrobe.Client.Clients;
+using Buutyful.Wardrobe;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.Services.AddDbContext<BuutyfulWardrobeContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("BuutyfulWardrobeContext") ?? 
-    throw new InvalidOperationException("Connection string 'BuutyfulWardrobeContext' not found.")));
+{
+    builder.Services.AddDbContext<BuutyfulWardrobeContext>(options =>
+        options.UseSqlServer(builder.Configuration.GetConnectionString("BuutyfulWardrobeContext") ??
+        throw new InvalidOperationException("Connection string 'BuutyfulWardrobeContext' not found.")));
+   
+    builder.Services.AddServer()
+                    .AddClient(builder);
 
-
-// Add services to the container.
-builder.Services.AddRazorComponents()
-    .AddInteractiveWebAssemblyComponents();
-
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddSwaggerGen();
+}
 
 var app = builder.Build();
 

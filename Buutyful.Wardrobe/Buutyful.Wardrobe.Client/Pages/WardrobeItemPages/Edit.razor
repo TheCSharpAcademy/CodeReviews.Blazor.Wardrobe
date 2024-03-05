@@ -44,8 +44,8 @@ else
     public Guid Id { get; set; }
 
     [SupplyParameterFromForm]
-    public UpdateFormModel? WardrobeItem { get; set; }
-    
+    public UpdateFormModel? WardrobeItem { get; set; } = new();
+
 
     protected override async Task OnInitializedAsync()
     {

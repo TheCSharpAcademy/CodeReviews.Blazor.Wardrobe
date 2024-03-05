@@ -35,8 +35,8 @@
     PaginationState State = new PaginationState { ItemsPerPage = 10 };
     public List<WardrobeItemResponse> Items { get; set; } = [];
     string descriptionFilter = "";
-    public IQueryable<WardrobeItemResponse> FilteredItems => Items.Where(item => item.Description!
-                                                                  .Contains(descriptionFilter))
+    public IQueryable<WardrobeItemResponse> FilteredItems => Items.Where(item => item?.Description
+                                                                  .Contains(descriptionFilter) ?? false)
                                                                   .AsQueryable();
 
     protected override async Task OnInitializedAsync()
