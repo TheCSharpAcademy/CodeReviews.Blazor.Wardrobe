@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.9.34607.119
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buutyful.Wardrobe", "Buutyful.Wardrobe\Buutyful.Wardrobe\Buutyful.Wardrobe.csproj", "{21D6D853-0D8F-480C-A92B-7DC7EA0AE56D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Buutyful.Wardrobe", "Buutyful.Wardrobe\Buutyful.Wardrobe\Buutyful.Wardrobe.csproj", "{21D6D853-0D8F-480C-A92B-7DC7EA0AE56D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buutyful.Wardrobe.Client", "Buutyful.Wardrobe\Buutyful.Wardrobe.Client\Buutyful.Wardrobe.Client.csproj", "{33E5DC0C-2A4E-4935-87E0-4A282E2434E3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Buutyful.Wardrobe.Client", "Buutyful.Wardrobe\Buutyful.Wardrobe.Client\Buutyful.Wardrobe.Client.csproj", "{33E5DC0C-2A4E-4935-87E0-4A282E2434E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buutyful.Wardrobe.Shared", "Buutyful.Wardrobe.Shared\Buutyful.Wardrobe.Shared.csproj", "{467E186B-02EC-498F-9A09-F5FBF4724630}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{33E5DC0C-2A4E-4935-87E0-4A282E2434E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33E5DC0C-2A4E-4935-87E0-4A282E2434E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33E5DC0C-2A4E-4935-87E0-4A282E2434E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{467E186B-02EC-498F-9A09-F5FBF4724630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{467E186B-02EC-498F-9A09-F5FBF4724630}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{467E186B-02EC-498F-9A09-F5FBF4724630}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{467E186B-02EC-498F-9A09-F5FBF4724630}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

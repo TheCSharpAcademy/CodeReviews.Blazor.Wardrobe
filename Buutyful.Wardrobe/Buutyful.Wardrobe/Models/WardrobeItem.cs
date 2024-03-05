@@ -1,4 +1,6 @@
-﻿namespace Buutyful.Wardrobe.Models;
+﻿using Buutyful.Wardrobe.Shared.Enums;
+
+namespace Buutyful.Wardrobe.Models;
 
 public class WardrobeItem
 {
@@ -22,10 +24,4 @@ public class WardrobeItem
         AddedAt = DateTime.UtcNow;
         Description = description;
     }
-}
-public enum ClothingType
-{
-    A,
-    B,
-    C
 }

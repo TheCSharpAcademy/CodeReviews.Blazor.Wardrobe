@@ -7,6 +7,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Buutyful.Wardrobe.Shared\Buutyful.Wardrobe.Shared.csproj" />
     <ProjectReference Include="..\Buutyful.Wardrobe.Client\Buutyful.Wardrobe.Client.csproj" />
     <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.2" />
