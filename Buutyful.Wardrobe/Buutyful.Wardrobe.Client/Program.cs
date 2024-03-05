@@ -7,7 +7,7 @@ builder.Services.AddHttpClient<IHttpWardRobeClient, HttpWardRobeClient>(client =
 {
     client.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
 });
-builder.Services.AddScoped<IHttpWardRobeClient, HttpWardRobeClient>();
+
 
 
 await builder.Build().RunAsync();
