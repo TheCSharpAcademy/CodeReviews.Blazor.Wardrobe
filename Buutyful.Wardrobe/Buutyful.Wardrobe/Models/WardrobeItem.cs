@@ -1,4 +1,6 @@
-﻿using Buutyful.Wardrobe.Shared.Enums;
+﻿using Buutyful.Wardrobe.Shared.Contracts;
+using Buutyful.Wardrobe.Shared.Enums;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace Buutyful.Wardrobe.Models;
 
@@ -24,4 +26,21 @@ public class WardrobeItem
         AddedAt = DateTime.UtcNow;
         Description = description;
     }
+}
+public static class WardrobeItemExtentions
+{
+    public static WardrobeItemResponse MapToResponse(this WardrobeItem item) =>
+        new(item.Id,
+            item.WardrobeId,
+            item.ImgUrl,
+            item.ClothingType,
+            item.AddedAt,
+            item.Description);
+    public static List<WardrobeItemResponse> MapToResponseList(this IEnumerable<WardrobeItem> source) =>
+        source.Select(MapToResponse).ToList();
+    public static WardrobeItem CreateFromRequest(this CreateWardrobeItem item) =>
+        new(item.WardrobeId,
+            item.ImgUrl,
+            item.ClothingType,
+            item.Description);
 }

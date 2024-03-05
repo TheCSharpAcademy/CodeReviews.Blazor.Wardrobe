@@ -1,0 +1,74 @@
+﻿@page "/WardrobeItems/edit"
+@inject NavigationManager NavigationManager
+@inject IHttpWardRobeClient _client
+
+<PageTitle>Edit</PageTitle>
+
+<h1>Edit</h1>
+
+<h4>WardrobeItem</h4>
+<hr />
+@if (WardrobeItem is null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            <EditForm method="post" Model="WardrobeItem" OnValidSubmit="UpdateWardrobeItem" FormName="edit" Enhance>
+                <DataAnnotationsValidator />
+                <ValidationSummary />
+                <div class="mb-3">
+                    <label for="imgurl" class="form-label">ImgUrl:</label>
+                    <InputText id="imgurl" @bind-Value="WardrobeItem.ImgUrl" class="form-control" />
+                    <ValidationMessage For="() => WardrobeItem.ImgUrl" class="text-danger" />
+                </div>            
+                <div class="mb-3">
+                    <label for="description" class="form-label">Description:</label>
+                    <InputText id="description" @bind-Value="WardrobeItem.Description" class="form-control" />
+                    <ValidationMessage For="() => WardrobeItem.Description" class="text-danger" />
+                </div>
+                <button type="submit" class="btn btn-primary">Save</button>
+            </EditForm>
+        </div>
+    </div>
+}
+
+<div>
+    <a href="/wardrobeitems">Back to List</a>
+</div>
+
+@code {
+    [SupplyParameterFromQuery]
+    public Guid Id { get; set; }
+
+    [SupplyParameterFromForm]
+    public UpdateFormModel? WardrobeItem { get; set; }
+    
+
+    protected override async Task OnInitializedAsync()
+    {
+        var toBeUpdated = await _client.GetByIdAsync(Id);
+
+        if (toBeUpdated is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    // To protect from overposting attacks, enable the specific properties you want to bind to.
+    // For more details, see https://aka.ms/RazorPagesCRUD.
+    public async Task UpdateWardrobeItem()
+    {
+        var item = new UpdateWardrobeItem(
+            Guid.NewGuid(),
+            WardrobeItem?.ImgUrl,
+            Shared.Enums.ClothingType.A,
+            WardrobeItem?.Description);
+        var res = await _client.UpdateAsync(Id, item);
+
+        NavigationManager.NavigateTo("/wardrobeitems");
+    }
+  
+}

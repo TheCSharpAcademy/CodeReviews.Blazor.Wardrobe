@@ -1,0 +1,60 @@
+﻿@page "/wardrobeitems/create"
+@inject NavigationManager NavigationManager
+@inject IHttpWardRobeClient _client
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h4>WardrobeItem</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="WardrobeItem" OnValidSubmit="AddWardrobeItem" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" />            
+            <div class="mb-3">
+                <label for="imgurl" class="form-label">ImgUrl:</label>
+                <InputText id="imgurl" @bind-Value="WardrobeItem.ImgUrl" class="form-control" />
+                <ValidationMessage For="() => WardrobeItem.ImgUrl" class="text-danger" />
+            </div>                    
+            <div class="mb-3">
+                <label for="description" class="form-label">Description:</label>
+                <InputText id="description" @bind-Value="WardrobeItem.Description" class="form-control" />
+                <ValidationMessage For="() => WardrobeItem.Description" class="text-danger" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/wardrobeitems">Back to List</a>
+</div>
+
+@code {
+
+    [SupplyParameterFromForm]
+    public CreateFromModel WardrobeItem { get; set; }
+    //Should have Wardrobes List
+    //Should have select options for wardrobe, clothtype
+
+    protected override Task OnInitializedAsync()
+    {
+        //should fetch Wardrobes types
+        return base.OnInitializedAsync();
+    }
+
+    // To protect from overposting attacks, see https://aka.ms/RazorPagesCRUD
+    public async Task AddWardrobeItem()
+    {
+        var item = new CreateWardrobeItem(
+            Guid.NewGuid(),
+            WardrobeItem.ImgUrl,
+            Shared.Enums.ClothingType.A,
+            WardrobeItem.Description);
+
+        var x = await _client.CreateAsync(item);       
+        NavigationManager.NavigateTo("/wardrobeitems");
+    }
+}

@@ -1,0 +1,49 @@
+﻿@page "/wardrobeitems"
+
+@using Microsoft.AspNetCore.Components.QuickGrid
+@inject IHttpWardRobeClient _client
+
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="wardrobeitems/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="FilteredItems" Pagination="State">
+
+    <PropertyColumn Property="wardrobeitem => wardrobeitem.ClothingType" Title="Type" Sortable="true"/>
+    <PropertyColumn Property="wardrobeitem => wardrobeitem.AddedAt" Title="Item Added At" Format="MM/dd/yyyy" />
+    <PropertyColumn Property="wardrobeitem => wardrobeitem.Description">
+        <ColumnOptions>
+            <div>
+                <input type="search" @bind="descriptionFilter" @bind:event="oninput" autofocus/>
+            </div>
+        </ColumnOptions>
+    </PropertyColumn>
+
+    <TemplateColumn Context="wardrobeitem">
+        <a href="@($"wardrobeitems/edit?id={wardrobeitem.Id}")">Edit</a> |
+        <a href="@($"wardrobeitems/details?id={wardrobeitem.Id}")">Details</a> |
+        <a href="@($"wardrobeitems/delete?id={wardrobeitem.Id}")">Delete</a>
+    </TemplateColumn>
+
+</QuickGrid>
+<Paginator State="State" />
+@code 
+{
+    PaginationState State = new PaginationState { ItemsPerPage = 10 };
+    public List<WardrobeItemResponse> Items { get; set; } = [];
+    string descriptionFilter = "";
+    public IQueryable<WardrobeItemResponse> FilteredItems => Items.Where(item => item.Description!
+                                                                  .Contains(descriptionFilter))
+                                                                  .AsQueryable();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Items = [.. await _client.GetAsync()];
+    }
+
+}

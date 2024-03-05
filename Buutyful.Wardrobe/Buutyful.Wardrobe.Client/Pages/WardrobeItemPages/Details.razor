@@ -1,0 +1,52 @@
+﻿@page "/wardrobeitems/details"
+@inject NavigationManager NavigationManager
+@inject IHttpWardRobeClient _client
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h4>WardrobeItem</h4>
+    <hr />
+    @if (wardrobeitem is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">WardrobeId</dt>
+            <dd class="col-sm-10">@wardrobeitem.WardrobeId</dd>
+            <dt class="col-sm-2">ImgUrl</dt>
+            <dd class="col-sm-10">@wardrobeitem.ImgUrl</dd>
+            <dt class="col-sm-2">ClothingType</dt>
+            <dd class="col-sm-10">@wardrobeitem.ClothingType</dd>
+            <dt class="col-sm-2">AddedAt</dt>
+            <dd class="col-sm-10">@wardrobeitem.AddedAt</dd>
+            <dt class="col-sm-2">Description</dt>
+            <dd class="col-sm-10">@wardrobeitem.Description</dd>
+        </dl>
+        <div>
+            <a href="@($"/wardrobeitems/edit?id={wardrobeitem.Id}")">Edit</a> |
+            <a href="@($"/wardrobeitems")">Back to List</a>
+        </div>
+    }
+</div>
+
+@code
+{
+    WardrobeItemResponse? wardrobeitem;
+
+    [SupplyParameterFromQuery]
+    public Guid Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        wardrobeitem = await _client.GetByIdAsync(Id);
+
+        if (wardrobeitem is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+}
