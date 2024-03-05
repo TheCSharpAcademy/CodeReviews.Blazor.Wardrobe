@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\Buutyful.Wardrobe.Shared\Buutyful.Wardrobe.Shared.csproj" />
+    <ProjectReference Include="..\Buutyful.Wardrobe.Shared\Buutyful.Wardrobe.Shared.csproj" />
   </ItemGroup>
 
 </Project>

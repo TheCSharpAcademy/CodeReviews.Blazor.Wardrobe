@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Buutyful.Wardrobe", "Buutyf
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Buutyful.Wardrobe.Client", "Buutyful.Wardrobe\Buutyful.Wardrobe.Client\Buutyful.Wardrobe.Client.csproj", "{33E5DC0C-2A4E-4935-87E0-4A282E2434E3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Buutyful.Wardrobe.Shared", "Buutyful.Wardrobe.Shared\Buutyful.Wardrobe.Shared.csproj", "{467E186B-02EC-498F-9A09-F5FBF4724630}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Buutyful.Wardrobe.Shared", "Buutyful.Wardrobe\Buutyful.Wardrobe.Shared\Buutyful.Wardrobe.Shared.csproj", "{16F4BEEC-9F63-4312-9B14-086EFEE01ACB}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{33E5DC0C-2A4E-4935-87E0-4A282E2434E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33E5DC0C-2A4E-4935-87E0-4A282E2434E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{33E5DC0C-2A4E-4935-87E0-4A282E2434E3}.Release|Any CPU.Build.0 = Release|Any CPU
-		{467E186B-02EC-498F-9A09-F5FBF4724630}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{467E186B-02EC-498F-9A09-F5FBF4724630}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{467E186B-02EC-498F-9A09-F5FBF4724630}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{467E186B-02EC-498F-9A09-F5FBF4724630}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16F4BEEC-9F63-4312-9B14-086EFEE01ACB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16F4BEEC-9F63-4312-9B14-086EFEE01ACB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16F4BEEC-9F63-4312-9B14-086EFEE01ACB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16F4BEEC-9F63-4312-9B14-086EFEE01ACB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
