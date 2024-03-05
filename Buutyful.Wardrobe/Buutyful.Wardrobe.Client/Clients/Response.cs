@@ -16,7 +16,7 @@ public static class Response
     {
         response.EnsureSuccessStatusCode();
         var content = await response.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize<List<T>>(content) ?? new List<T>();
+        return JsonSerializer.Deserialize<List<T>>(content) ?? [];
     }
     public static bool HandleResult(HttpResponseMessage response) =>
         response.IsSuccessStatusCode;

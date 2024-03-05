@@ -1,7 +1,5 @@
 ﻿using Buutyful.Wardrobe.Shared.Contracts;
-using System.Net;
 using System.Net.Http.Json;
-using System.Text.Json;
 
 namespace Buutyful.Wardrobe.Client.Clients;
 
