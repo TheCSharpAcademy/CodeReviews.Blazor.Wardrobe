@@ -1,3 +1,0 @@
-TODO: client pages
-TODO: domian 
-TODO: wardrobe http client
