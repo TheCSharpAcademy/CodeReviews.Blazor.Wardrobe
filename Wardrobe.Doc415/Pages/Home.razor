@@ -6,7 +6,19 @@
 
 <PageTitle>My Wardrobe</PageTitle>
 
+
+<div class="row mb-4">
+    <div class="col-sm-6">
+        <h5> Today: @DateTime.UtcNow.Date.ToShortDateString()</h5>
+        
+
+    </div>
+</div>
+
+
 <h1>Wardrobe contents</h1>
+
+
 
 <div class="row mb-4">
     <div class="col-sm-6">
@@ -27,7 +39,9 @@ else
       @foreach (var cloth in myClothes)
     {
         <div class="card col-sm-6 m-3" style="width: 18rem;">
-            <img class="card-img-top" src="@cloth.ImageUrl" alt="Card image cap">
+            <div class="container">
+            <img class="card-img-top" src="@cloth.ImageUrl" width="300"  alt="Card image cap">
+            </div>
             <div class="card-body">
                 <h5 class="card-title">@cloth.Name</h5>
                 <p class="card-text">Category: @cloth.Category</p>
