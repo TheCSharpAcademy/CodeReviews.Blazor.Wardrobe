@@ -30,7 +30,9 @@ else
             <img class="card-img-top" src="@cloth.ImageUrl" alt="Card image cap">
             <div class="card-body">
                 <h5 class="card-title">@cloth.Name</h5>
-                <p class="card-text">@cloth.Category</p>
+                <p class="card-text">Category: @cloth.Category</p>
+                <p class="card-text">Color: @cloth.Color</p>
+                <p class="card-text">For weather: @cloth.Weather</p>
                 <button type="button" @onclick="(()=> EditCloth(cloth.Id))" class="btn btn-outline-secondary bi bi-pencil"></button>
                 <button type="button" 
                     data-bs-toggle="modal" 

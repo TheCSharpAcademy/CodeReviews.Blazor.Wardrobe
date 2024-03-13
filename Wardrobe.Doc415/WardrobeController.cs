@@ -52,6 +52,7 @@ public class WardrobeController
 
     public async Task AddCloth(Cloth cloth)
     {
+
         using var _context = await _DbFactory.CreateDbContextAsync();
         _context.Clothes.Add(cloth);
         await _context.SaveChangesAsync();
