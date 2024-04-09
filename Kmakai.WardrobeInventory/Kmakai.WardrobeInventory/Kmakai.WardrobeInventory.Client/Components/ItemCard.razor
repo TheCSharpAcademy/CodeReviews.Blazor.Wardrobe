@@ -1,0 +1,33 @@
+﻿
+<div class="card d-flex flex-column align-items-center" style="width: 140px;">
+    <button @onclick="() => click(Item!)" class="btn flex-grow-1 d-flex flex-column justify-content-between" style="">
+        <img src="@Item?.Image?.ImageUrl" class="card-img-top" alt="@Item?.ItemType.ToString()" style="width:100px;max-height:150px;">
+        <div class="my-4">
+            <h5 class="card-title fs-6">@Item?.Name</h5>
+        </div>
+    </button>
+    <div class="d-flex gap-2 mt-auto">
+        <NavLink class="btn btn-outline-primary border border-0" href=@($"/edit-item/{Item?.Id}")>
+            edit
+        </NavLink>
+        <button class="btn btn-outline-danger border border-0">
+            remove
+        </button>
+    </div>
+</div>
+
+@code {
+
+    [Parameter]
+    public WardrobeItem? Item { get; set; }
+
+    [Parameter]
+    public EventCallback<WardrobeItem> Clicked { get; set; }
+
+    private Task click(WardrobeItem item
+    )
+    {
+        return Clicked.InvokeAsync(Item);
+    }
+
+}

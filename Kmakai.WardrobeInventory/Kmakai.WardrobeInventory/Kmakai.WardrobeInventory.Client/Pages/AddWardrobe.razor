@@ -1,0 +1,230 @@
+﻿@page "/new-wardrobe"
+@page "/edit-wardrobe/{id}"
+@rendermode InteractiveWebAssembly
+@inject HttpClient client
+@inject NavigationManager navigationManager
+
+<div class="d-flex flex-md-row flex-column ">
+    <div class="d-flex flex-column p-4 gap-4">
+        @if (id != "")
+        {
+            <h4>Edit wardrobe</h4>
+        }
+        else
+        {
+            <h4>New wardrobe</h4>
+        }
+        <div class="d-flex gap-2">
+            <div class="border border-2 @(shirt != null ? "border-success" :  "border-danger") rounded-2" style="width: 100px; overflow: hidden;">
+                <img src=@(shirt?.Image?.ImageUrl ?? "images/soutline.jpg") alt="shirt" class="w-100 h-100" />
+            </div>
+            <div style="width:200px;" class="">
+                <div class="d-flex flex-column">
+                    <small>
+                       name: @(shirt?.Name ?? "No shirt selected")
+                    </small>
+                    <small>
+                       description: @(shirt?.Description ?? "")
+                    </small><small>
+                       color: @(shirt?.Color ?? "")
+                    </small>
+
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <div class="border border-2 @(pants != null ? "border-success" :  "border-danger") rounded-2" style="width: 100px; overflow: hidden;">
+                <img src=@(pants?.Image?.ImageUrl ?? "images/poutline.jpg") alt="pants" class="w-100 h-100" />
+            </div>
+            <div style="width:200px;" class="">
+                <div class="d-flex flex-column">
+                    <small>
+                       name: @(pants?.Name ?? "No pants selected")
+                    </small>
+                    <small>
+                       description: @(pants?.Description ?? "")
+                    </small><small>
+                       color: @(pants?.Color ?? "")
+                    </small>
+
+                </div>
+            </div>
+        </div>
+        <div class="d-flex gap-2">
+            <div class="border border-2 @(shoes != null ? "border-success" :  "border-danger") rounded-2" style="width: 100px; overflow: hidden;">
+                <img src=@(shoes?.Image?.ImageUrl ?? "images/shoutline.jpg") alt="shoes" class="w-100 h-100" />
+            </div>
+            <div style="width:215px;" class="">
+                <div class="d-flex flex-column">
+                    <small>
+                       name: @(shoes?.Name ?? "No shoes selected")
+                    </small>
+                    <small>
+                       desctription: @(shoes?.Description ?? "")
+                    </small><small>
+                       color: @(shoes?.Color ?? "")
+                    </small>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="d-flex gap-2">
+            <input type="text" class="form-control" placeholder="Wardrobe Name" @bind="wardrobeName" @bind:event="oninput" />
+        </div>
+
+        <div class="d-flex gap-2">
+            @if (!string.IsNullOrEmpty(id))
+            {
+                <button class="btn btn-primary" disabled="@(shirt == null || pants == null || shoes == null || wardrobeName == string.Empty)" @onclick="Update">Update</button>
+            }
+            else
+            {
+                <button class="btn btn-primary" disabled="@(shirt == null || pants == null || shoes == null || wardrobeName == string.Empty)" @onclick="Save">Save</button>
+            }
+            <button class="btn btn-secondary" @onclick="Reset">reset</button>
+
+        </div>
+    </div>
+
+
+    <div class="p-4">
+        <div style="width: 255px;" class="d-flex gap-2">
+            <button class="btn btn-primary" @onclick="async () => wardrobeItems = await GetItems()">All</button>
+            <button class="btn btn-primary" @onclick="async () => wardrobeItems = await GetFilteredItems(ItemType.Top)">shirts</button>
+            <button class="btn btn-primary" @onclick="async () => wardrobeItems = await GetFilteredItems(ItemType.Bottom)">pants</button>
+            <button class="btn btn-primary" @onclick="async () => wardrobeItems = await GetFilteredItems(ItemType.Footwear)">Shoes</button>
+        </div>
+
+        <div class="d-flex flex-wrap gap-2 pt-2">
+
+
+            @foreach (var item in wardrobeItems!)
+            {
+
+                <ItemCard Item="@item" Clicked="HandleClick" />
+            }
+        </div>
+
+    </div>
+
+
+</div>
+
+@code {
+    [Parameter]
+    public string id { get; set; } = "";
+
+    private List<WardrobeItem>? wardrobeItems = new List<WardrobeItem>();
+    private WardrobeItem shirt { get; set; } = null!;
+    private WardrobeItem pants { get; set; } = null!;
+    private WardrobeItem shoes { get; set; } = null!;
+    private Wardrobe newWardrobe { get; set; } = null!;
+    private string wardrobeName { get; set; } = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (!string.IsNullOrEmpty(id))
+        {
+            await GetWardrobe();
+        }
+
+        wardrobeItems = await GetItems();
+
+
+    }
+
+    private async Task GetWardrobe()
+    {
+      
+        var response = await client.GetFromJsonAsync<Wardrobe>($"https://localhost:7103/api/wardrobe/{id}");
+       
+
+        if (response == null)
+        {
+            return;
+        }
+
+        shirt = response!.Top!;
+        pants = response!.Bottom!;
+        shoes = response!.Footwear!;
+        wardrobeName = response!.Name!;
+
+    }
+
+    private async Task<List<WardrobeItem>?> GetItems()
+    {
+        return await client.GetFromJsonAsync<List<WardrobeItem>>("https://localhost:7103/api/wardrobe/items");
+    }
+
+    private void HandleClick(WardrobeItem item)
+    {
+        switch (item.ItemType)
+        {
+            case ItemType.Top:
+                shirt = item;
+                break;
+            case ItemType.Bottom:
+                pants = item;
+                break;
+            case ItemType.Footwear:
+                shoes = item;
+                break;
+        }
+    }
+
+    private async Task Reset()
+    {
+        if (!string.IsNullOrEmpty(id))
+        {
+            await GetWardrobe();
+        }
+        else
+        {
+            shirt = null!;
+            pants = null!;
+            shoes = null!;
+            wardrobeName = "";
+        }
+
+    }
+
+    private async Task<List<WardrobeItem>> GetFilteredItems(ItemType type)
+    {
+        var Items = await GetItems();
+        return Items!.Where(x => x.ItemType == type).ToList();
+    }
+
+    private async Task Save()
+    {
+        newWardrobe = new Wardrobe();
+        newWardrobe.Name = wardrobeName;
+        newWardrobe.TopId = shirt.Id;
+        newWardrobe.BottomId = pants.Id;
+        newWardrobe.FootwearId = shoes.Id;
+
+        var response = await client.PostAsJsonAsync("https://localhost:7103/api/wardrobe", newWardrobe);
+
+        var json = await response.Content.ReadAsStringAsync();
+        
+        navigationManager.NavigateTo("/");
+    }
+
+    private async Task Update()
+    {
+        newWardrobe = new Wardrobe();
+        newWardrobe.Id = int.Parse(id);
+        newWardrobe.Name = wardrobeName;
+        newWardrobe.TopId = shirt.Id;
+        newWardrobe.BottomId = pants.Id;
+        newWardrobe.FootwearId = shoes.Id;
+
+        var response = await client.PutAsJsonAsync($"https://localhost:7103/api/wardrobe", newWardrobe);
+
+        var json = await response.Content.ReadAsStringAsync();
+        
+        navigationManager.NavigateTo("/");
+    }
+
+
+}
