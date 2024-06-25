@@ -1,0 +1,77 @@
+@using Wardrobe.BBualdo.Enums
+@using Wardrobe.BBualdo.Models
+@using Wardrobe.BBualdo.Services
+@inject IWardrobeService wardrobeService
+@inject IFilesService filesService
+
+<EditForm Model="SelectedCloth" OnValidSubmit="UpdateCloth" FormName="EditCloth" class="form">
+    <DataAnnotationsValidator />
+    <div class="form-fields">
+        <div class="form-field">
+            <label for="name">Name</label>
+            <InputText id="name" @bind-Value="SelectedCloth!.Name" class="input" />
+            <ValidationMessage For="() => SelectedCloth!.Name" class="validation-message" />
+        </div>
+        <div class="form-field">
+            <label for="category">Category</label>
+            <InputSelect id="category" @bind-Value="SelectedCloth!.Category" class="input" >
+                @foreach (var category in Enum.GetValues<Categories>())
+                {
+                    <option value="@category">@category</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="form-field">
+            <label for="size">Size</label>
+            <InputSelect id="size" @bind-Value="SelectedCloth!.Size" class="input" >
+                @foreach (var size in Enum.GetValues<Sizes>())
+                {
+                    <option value="@size">@size</option>
+                }
+            </InputSelect>
+        </div>
+        <div class="form-field">
+            <label for="color">Color</label>
+            <InputText id="color" @bind-Value="SelectedCloth!.Color" class="input" />
+            <ValidationMessage For="() => SelectedCloth!.Color" class="validation-message" />
+        </div>
+        <div class="form-field">
+            <label for="brand">Brand</label>
+            <InputText id="brand" @bind-Value="SelectedCloth!.Brand" class="input" />
+            <ValidationMessage For="() => SelectedCloth!.Brand" class="validation-message" />
+        </div>
+        <div class="form-field">
+            <label for="image">Image</label>
+            <InputFile OnChange="LoadFile" id="image" @bind-Value="SelectedCloth.ImagePath" class="input" />
+        </div>
+    </div>
+    <div class="action__buttons">
+        <button @onclick="CloseDialog" class="btn btn-secondary">Cancel</button>
+        <button class="btn btn-primary">Save</button>
+    </div>
+
+</EditForm>
+
+@code {
+    [Parameter] public Cloth? SelectedCloth { get; set; }
+    [Parameter] public EventCallback CloseButtonClicked { get; set; }
+    private IBrowserFile? _file;
+    
+    private void CloseDialog()
+    {
+        CloseButtonClicked.InvokeAsync();
+    }
+    
+    private void LoadFile(InputFileChangeEventArgs e)
+    {
+        _file = e.File;
+    }
+    
+    private async Task UpdateCloth()
+    {
+        string relativePath = await filesService.CaptureFile(_file);
+        SelectedCloth!.ImagePath = relativePath;
+        await wardrobeService.UpdateCloth(SelectedCloth!);
+        CloseDialog();
+    }
+}

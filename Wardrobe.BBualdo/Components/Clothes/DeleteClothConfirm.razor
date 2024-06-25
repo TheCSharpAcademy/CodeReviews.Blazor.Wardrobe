@@ -1,0 +1,30 @@
+@using Wardrobe.BBualdo.Models
+@using Wardrobe.BBualdo.Services
+@inject IWardrobeService wardrobeService;
+
+<div class="confirmation__container">
+    <p>Are you sure you want to delete <span>@SelectedCloth!.Name</span>?</p>
+    <div class="action__buttons">
+        <button @onclick="CloseDialog" class="btn btn-secondary">Cancel</button>
+        <button @onclick="DeleteCloth" class="btn btn-warning">Delete</button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Cloth? SelectedCloth { get; set; }
+    [Parameter] public EventCallback CloseButtonClicked { get; set; }
+    [Parameter] public EventCallback OnClothDelete { get; set; }
+
+    private void CloseDialog()
+    {
+        CloseButtonClicked.InvokeAsync();
+    }
+
+    private async Task DeleteCloth()
+    {
+        await wardrobeService.DeleteCloth(SelectedCloth!);
+        await OnClothDelete.InvokeAsync();
+        CloseDialog();
+    }
+
+}

@@ -1,0 +1,17 @@
+﻿.navbar {
+  background-color: black;
+  border-bottom: 2px solid white;
+  padding: 12px 24px;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: white;
+}
+
+.logo {
+  width: 40px;
+  height: 40px;
+}

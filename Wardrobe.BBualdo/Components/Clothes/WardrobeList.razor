@@ -1,0 +1,77 @@
+﻿@using Models
+@using Services
+@inject IWardrobeService wardrobeService;
+
+@if (Clothes != null)
+{
+  @if (Clothes.Count == 0)
+  {
+    <p>Your wardrobe is empty.</p>
+  }
+  else
+  {
+    @foreach (var cloth in Clothes)
+    {
+      <div class="cloth__container">
+        <div class="cloth__details">
+          <img alt="" src="images/@cloth.ImagePath" class="cloth-image"/>
+          <div>
+            <p class="cloth-info">@cloth.Color @cloth.Brand @cloth.Name</p>
+            <p>Size: @cloth.Size</p>
+          </div>
+        </div>
+        <div class="action__buttons">
+          <button @onclick="() => OpenEditDialog(cloth)" class="btn btn-secondary">Edit</button>
+          <button @onclick="() => OpenDeleteDialog(cloth)" class="btn btn-warning">Delete</button>
+        </div>
+      </div>
+    }
+  }
+}
+
+
+  <Dialog Title="Edit Cloth" IsOpened="IsEditDialogOpened" CloseButtonClicked="() => 
+          { 
+            IsEditDialogOpened = false; 
+            SelectedCloth = null; 
+          }">
+    <DialogBody>
+      <EditClothForm CloseButtonClicked="() => IsEditDialogOpened = false" SelectedCloth="SelectedCloth" />
+    </DialogBody>
+  </Dialog>
+
+  <Dialog Title="Delete Cloth" IsOpened="IsDeleteDialogOpened" CloseButtonClicked="() => 
+          { 
+            IsDeleteDialogOpened = false; 
+            SelectedCloth = null; 
+          }"
+          >
+    <DialogBody>
+      <DeleteClothConfirm SelectedCloth="SelectedCloth" CloseButtonClicked="() => IsDeleteDialogOpened = false" OnClothDelete="RefreshClothes" />
+    </DialogBody>
+  </Dialog>
+
+
+@code {
+  [Parameter] public List<Cloth>? Clothes { get; set; }
+  private bool IsEditDialogOpened = false;
+  private bool IsDeleteDialogOpened = false;
+  public Cloth? SelectedCloth { get; set; }
+
+  private void OpenEditDialog(Cloth cloth)
+  {
+    IsEditDialogOpened = true;
+    SelectedCloth = cloth;
+  }
+
+  private void OpenDeleteDialog(Cloth cloth)
+  {
+    IsDeleteDialogOpened = true;
+    SelectedCloth = cloth;
+  }
+
+  private async Task RefreshClothes()
+  {
+    Clothes = await wardrobeService.GetClothes();
+  }
+}

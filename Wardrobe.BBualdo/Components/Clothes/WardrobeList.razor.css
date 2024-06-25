@@ -1,0 +1,20 @@
+﻿.cloth__container {
+  align-items: center;
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.cloth-image {
+  height: 100px;
+  width: 100px;
+}
+
+.cloth__details {
+  display: flex;
+  gap: 20px;
+}
+
+.cloth-info {
+  font-size: 32px;
+}

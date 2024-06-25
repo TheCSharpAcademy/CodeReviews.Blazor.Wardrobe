@@ -1,0 +1,32 @@
+﻿@rendermode InteractiveServer
+
+@if (IsOpened)
+{
+  <div class="overlay">
+    <div class="modal">
+      <div class="dialog__header">
+        <p>@Title</p>
+        <button @onclick="CloseDialog">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+      <div class="dialog__body">
+        @DialogBody
+      </div>
+    </div>
+  </div>
+}
+
+
+@code {
+  [Parameter] public string? Title { get; set; }
+  [Parameter] public RenderFragment? DialogBody { get; set; }
+  [Parameter] public bool IsOpened { get; set; }
+  [Parameter] public EventCallback CloseButtonClicked { get; set; }
+
+  private void CloseDialog()
+  {
+    IsOpened = false;
+    CloseButtonClicked.InvokeAsync();
+  }
+}
