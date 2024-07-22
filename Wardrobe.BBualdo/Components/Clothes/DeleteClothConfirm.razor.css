@@ -1,0 +1,15 @@
+.confirmation__container {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+p {
+    font-size: 24px;
+}
+
+p > span {
+    color: red;
+    font-weight: bold;
+}
