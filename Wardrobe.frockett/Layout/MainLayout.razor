@@ -1,0 +1,14 @@
+﻿@inherits LayoutComponentBase
+
+<div class="flex flex-col min-h-screen max-w-full m-0">
+    <div class="flex flex-grow">
+        <div class="bg-white min-w-36">
+            <NavMenu />
+        </div>
+
+        <main class="flex-grow">
+            @Body
+        </main>
+    </div>
+    <div class="bg-orange-100">Footer</div>
+</div>

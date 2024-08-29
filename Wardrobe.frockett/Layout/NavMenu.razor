@@ -1,0 +1,42 @@
+﻿@* <div class="top-row ps-3 navbar navbar-dark">
+<div class="container-fluid">
+<a class="navbar-brand" href="">Wardrobe.frockett</a>
+<button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
+<span class="navbar-toggler-icon"></span>
+</button>
+</div>
+</div> *@
+
+
+<nav class=" my-8 py-8 text-lg flex flex-col items-center justify-center font-sans"
+    style="border: 1px solid red;">
+    <div class="bg-white w-full hover:bg-slate-100 transition-all py-4 mx-auto text-center">
+        <NavLink class="py-2" href="">
+            <div class="" aria-hidden="true">Home</div>
+        </NavLink>
+    </div>
+    <div class="bg-white hover:bg-slate-100 transition-all w-full py-4 mx-auto text-center">
+        <NavLink class="py-2" href="weather">
+            <span class="" aria-hidden="true">Weather</span>
+        </NavLink>
+    </div>
+    <div class="bg-white hover:bg-slate-100 transition-all w-full py-4 mx-auto text-center">
+        <NavLink class="py-2" href="closet">
+            <span class="" aria-hidden="true">Closet</span>
+        </NavLink>
+    </div>
+</nav>
+
+
+
+@code
+{
+    private bool collapseNavMenu = true;
+
+    private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void ToggleNavMenu()
+    {
+        collapseNavMenu = !collapseNavMenu;
+    }
+}
