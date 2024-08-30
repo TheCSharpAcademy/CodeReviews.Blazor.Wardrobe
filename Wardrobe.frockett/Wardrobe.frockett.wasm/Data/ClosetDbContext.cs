@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using Wardrobe.frockett.Models;
+using Wardrobe.frockett.wasm.Models;
 
 namespace Wardrobe.frockett.Data;
 

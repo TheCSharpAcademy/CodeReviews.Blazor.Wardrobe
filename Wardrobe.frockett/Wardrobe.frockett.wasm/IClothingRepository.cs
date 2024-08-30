@@ -1,4 +1,4 @@
-using Wardrobe.frockett.Models;
+using Wardrobe.frockett.wasm.Models;
 public interface IClothingRepository
 {
     Task<List<ClothingItem>> GetAllClothingItemsAsync();

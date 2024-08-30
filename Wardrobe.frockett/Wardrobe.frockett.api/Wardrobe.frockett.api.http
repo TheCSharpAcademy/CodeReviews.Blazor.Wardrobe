@@ -1,0 +1,6 @@
+@Wardrobe.frockett.api_HostAddress = http://localhost:5256
+
+GET {{Wardrobe.frockett.api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
