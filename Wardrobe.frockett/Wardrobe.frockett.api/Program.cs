@@ -5,6 +5,8 @@ using Wardrobe.frockett.api.Data;
 using Wardrobe.frockett.api.Models;
 using Wardrobe.frockett.api.Repository;
 using Wardrobe.frockett.Repository;
+using System.Text.Json;
+using Microsoft.AspNetCore.Razor.TagHelpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -56,37 +58,40 @@ app.MapGet("/api/closet/{id}", async (int id, IClosetRepository repo) =>
 
 // POST new item
 app.MapPost("/api/closet", async (
-    [FromForm] string name,
-    [FromForm] string type,
+    [FromForm] string item,
     IFormFile? image,
     IClosetRepository repo) =>
 {
-    var item = new ClothingItem
+    var clothingItem = JsonSerializer.Deserialize<ClothingItem>(item, new JsonSerializerOptions
     {
-        Name = name,
-        Type = type,
-    };
+        PropertyNameCaseInsensitive = true
+    });
 
     ClothingItem newItem = new();
     if (image != null)
     {
-        newItem = await repo.AddItemAsync(item, image);
+        newItem = await repo.AddItemAsync(clothingItem, image);
     }
     else
     {
-        newItem = await repo.AddItemAsync(item, null);
+        newItem = await repo.AddItemAsync(clothingItem, null);
     }
 
     return Results.Created($"/api/closet/{newItem.Id}", newItem);
 }).DisableAntiforgery();
 
 // PUT update item
-app.MapPut("/api/closet/{id}", async (int id, IFormFile? image, [FromForm] ClothingItem item, IClosetRepository repo) =>
+app.MapPut("/api/closet/{id}", async (int id, IFormFile? image, [FromForm] string item, IClosetRepository repo) =>
 {
-    if (id != item.Id)
+    var clothingItem = JsonSerializer.Deserialize<ClothingItem>(item, new JsonSerializerOptions
+    {
+        PropertyNameCaseInsensitive = true
+    });
+
+    if (id != clothingItem.Id)
         return Results.BadRequest();
 
-    ClothingItem updatedItem = image != null ? await repo.UpdateItemAsync(item, image) : await repo.UpdateItemAsync(item, null);
+    ClothingItem updatedItem = image != null ? await repo.UpdateItemAsync(clothingItem, image) : await repo.UpdateItemAsync(clothingItem, null);
 
     return updatedItem is null ? Results.NotFound() : Results.NoContent();
 }).DisableAntiforgery();

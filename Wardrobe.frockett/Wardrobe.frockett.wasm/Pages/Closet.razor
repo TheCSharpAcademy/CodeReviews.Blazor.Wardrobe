@@ -15,7 +15,23 @@
             class="transition-all bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">Add New
             Item</button>
     </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            @foreach (var item in clothingItems)
+        {
+            <div class="bg-white shadow-md rounded-lg p-4">
+                @if (item.ImageData != null)
+                {
+                        <img src="data:image/jpeg;base64,@item.ImageData" alt="@item.Name" width="150" height="auto" class="object-cover mb-2 rounded" />
+                }
+                <h2 class="text-lg font-semibold">@item.Name</h2>
+                <p class="text-gray-600">@item.Type</p>
+            </div>
+        }
+    </div>
 </div>
+
+
 
 @if(showModal) {
         <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="modal-overlay">
@@ -39,7 +55,7 @@
 
                         <div class="mb-4">
                             <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Image:</label>
-                            <InputFile OnChange="HandleFileSelection" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                            <InputFile accept="image/jpeg" OnChange="HandleFileSelection" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                         </div>
 
                         <div class="items-center px-4 py-3">
@@ -59,12 +75,33 @@
     </div>
 }
 
-@code
-{
+@code {
     private List<ClothingItem> clothingItems = new();
     private bool showModal = false;
     private ClothingItem currentItem = new();
     private ClothingItem? editingItem;
+    private HttpClient httpClient = new HttpClient();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await FetchClothingItems();
+    }
+
+    private async Task FetchClothingItems()
+    {
+        try
+        {
+            clothingItems = await httpClient.GetFromJsonAsync<List<ClothingItem>>("http://localhost:5256/api/closet") ?? new List<ClothingItem>();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"HTTP request error: {ex}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error fetching clothing items: {ex.Message}");
+        }
+    }
 
     private void OpenAddModal()
     {
@@ -78,12 +115,43 @@
         showModal = false;
     }
 
-    private async Task HandleValidSubmit() {
-        if(editingItem == null) {
-            throw new NotImplementedException();
+    private async Task HandleValidSubmit()
+    {
+        Console.WriteLine("I'm submitting!");
+        try
+        {
+            if (editingItem == null)
+            {
+                // Add new item
+                var response = await httpClient.PostAsJsonAsync("http://localhost:5256/api/closet", currentItem);
+                if (response.IsSuccessStatusCode)
+                {
+                    await FetchClothingItems();
+                    CloseModal();
+                }
+                else
+                {
+                    Console.WriteLine($"Error adding item: {response.StatusCode}");
+                }
+            }
+            else
+            {
+                // Edit existing item
+                var response = await httpClient.PutAsJsonAsync($"https://localhost:5256/api/closet/{editingItem.Id}", currentItem);
+                if (response.IsSuccessStatusCode)
+                {
+                    await FetchClothingItems();
+                    CloseModal();
+                }
+                else
+                {
+                    Console.WriteLine($"Error updating item: {response.StatusCode}");
+                }
+            }
         }
-        else {
-            throw new NotImplementedException();
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error handling form submission: {ex.Message}");
         }
     }
 
@@ -95,7 +163,7 @@
             var buffer = new byte[file.Size];
             await file.OpenReadStream().ReadAsync(buffer);
             string imageBase64 = Convert.ToBase64String(buffer);
-            currentItem.ImagePath = $"data:{file.ContentType};base64,{imageBase64}";
+            currentItem.ImageData = $"data:{file.ContentType};base64,{imageBase64}";
         }
     }
 }
