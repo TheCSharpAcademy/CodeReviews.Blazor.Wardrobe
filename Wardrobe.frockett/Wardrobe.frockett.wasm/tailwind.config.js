@@ -2,7 +2,7 @@ import defaultTheme from 'tailwindcss/defaultTheme';
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: ['../Wardrobe.frockett/**/*.{razor,html,cshtml}'],
+  content: ['../Wardrobe.frockett.wasm/**/*.{razor,html,cshtml}'],
   theme: {
     extend: {
       fontFamily: {

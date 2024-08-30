@@ -1,6 +1,7 @@
 @using Wardrobe.frockett.wasm.Models
 @using System.IO
 @using Microsoft.AspNetCore.Components.Forms
+@using System.Text.Json
 
 
 @page "/closet"
@@ -81,6 +82,7 @@
     private ClothingItem currentItem = new();
     private ClothingItem? editingItem;
     private HttpClient httpClient = new HttpClient();
+    private IBrowserFile? selectedFile;
 
     protected override async Task OnInitializedAsync()
     {
@@ -107,6 +109,7 @@
     {
         currentItem = new ClothingItem();
         editingItem = null;
+        selectedFile = null;
         showModal = true;
     }
 
@@ -117,13 +120,26 @@
 
     private async Task HandleValidSubmit()
     {
-        Console.WriteLine("I'm submitting!");
+        Console.WriteLine(currentItem);
         try
         {
             if (editingItem == null)
             {
                 // Add new item
-                var response = await httpClient.PostAsJsonAsync("http://localhost:5256/api/closet", currentItem);
+                var content = new MultipartFormDataContent();
+
+                // Serialize the currentItem to JSON
+                var itemJson = JsonSerializer.Serialize(currentItem);
+                content.Add(new StringContent(itemJson), "item");
+
+                if (selectedFile != null)
+                {
+                    var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10)); // 10 MB max
+                    content.Add(fileContent, "image", selectedFile.Name);
+                }
+
+                var response = await httpClient.PostAsync("http://localhost:5256/api/closet", content);
+
                 if (response.IsSuccessStatusCode)
                 {
                     await FetchClothingItems();
@@ -157,13 +173,13 @@
 
     private async Task HandleFileSelection(InputFileChangeEventArgs e)
     {
-        var file = e.File;
-        if (file != null)
+        selectedFile = e.File;
+        if (selectedFile != null)
         {
-            var buffer = new byte[file.Size];
-            await file.OpenReadStream().ReadAsync(buffer);
+            var buffer = new byte[selectedFile.Size];
+            await selectedFile.OpenReadStream().ReadAsync(buffer);
             string imageBase64 = Convert.ToBase64String(buffer);
-            currentItem.ImageData = $"data:{file.ContentType};base64,{imageBase64}";
+            currentItem.ImageData = $"data:{selectedFile.ContentType};base64,{imageBase64}";
         }
     }
 }
