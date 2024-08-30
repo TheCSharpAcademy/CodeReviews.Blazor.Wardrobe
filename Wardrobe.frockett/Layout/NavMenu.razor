@@ -1,26 +1,21 @@
-﻿@* <div class="top-row ps-3 navbar navbar-dark">
-<div class="container-fluid">
-<a class="navbar-brand" href="">Wardrobe.frockett</a>
-<button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-<span class="navbar-toggler-icon"></span>
-</button>
-</div>
-</div> *@
+﻿@inject NavigationManager NavigationManager
+@implements IDisposable
 
-
-<nav class=" my-8 py-8 text-lg flex flex-col items-center justify-center font-sans"
-    style="border: 1px solid red;">
-    <div class="bg-white w-full hover:bg-slate-100 transition-all py-4 mx-auto text-center">
+<nav class=" text-lg flex flex-col items-center justify-center font-sans">
+    <div
+        class="@(IsActive("") ? "bg-indigo-500 text-white font-semibold" : "bg-white") w-full hover:bg-indigo-500 hover:text-white transition-all py-4 mx-auto text-center">
         <NavLink class="py-2" href="">
             <div class="" aria-hidden="true">Home</div>
         </NavLink>
     </div>
-    <div class="bg-white hover:bg-slate-100 transition-all w-full py-4 mx-auto text-center">
+    <div
+        class="@(IsActive("weather") ? "bg-indigo-500 text-white font-semibold" : "bg-white") hover:bg-indigo-500 hover:text-white transition-all w-full py-4 mx-auto text-center">
         <NavLink class="py-2" href="weather">
             <span class="" aria-hidden="true">Weather</span>
         </NavLink>
     </div>
-    <div class="bg-white hover:bg-slate-100 transition-all w-full py-4 mx-auto text-center">
+    <div
+        class="@(IsActive("closet") ? "bg-indigo-500 text-white font-semibold" : "bg-white") hover:bg-indigo-500 hover:text-white transition-all w-full py-4 mx-auto text-center">
         <NavLink class="py-2" href="closet">
             <span class="" aria-hidden="true">Closet</span>
         </NavLink>
@@ -32,8 +27,38 @@
 @code
 {
     private bool collapseNavMenu = true;
+    private string? currentUri;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    private void OnLocationChanged(object sender, LocationChangedEventArgs e)
+    {
+        StateHasChanged();
+    }
+
+    protected override void OnInitialized()
+    {
+        NavigationManager.LocationChanged += OnLocationChanged;
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+
+    private bool IsActive(string href)
+    {
+        var currentUri = NavigationManager.Uri;
+        var absoluteUri = NavigationManager.ToAbsoluteUri(href);
+
+        if (href == "")
+        {
+            // Special case for home page
+            return currentUri == NavigationManager.BaseUri;
+        }
+
+        return currentUri.StartsWith(absoluteUri.ToString(), StringComparison.OrdinalIgnoreCase);
+    }
 
     private void ToggleNavMenu()
     {
