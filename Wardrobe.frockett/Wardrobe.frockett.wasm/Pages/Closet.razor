@@ -17,18 +17,28 @@
             Item</button>
     </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">            
             @foreach (var item in clothingItems)
-        {
-            <div class="bg-white shadow-md rounded-lg p-4">
-                @if (item.ImageData != null)
-                {
-                        <img src="data:image/jpeg;base64,@item.ImageData" alt="@item.Name" width="150" height="auto" class="object-cover mb-2 rounded" />
-                }
-                <h2 class="text-lg font-semibold">@item.Name</h2>
-                <p class="text-gray-600">@item.Type</p>
-            </div>
-        }
+            {
+                <div class="bg-white shadow-md rounded-lg p-4 flex flex-col justify-end">
+                    @if (item.ImageData != null)
+                    {
+                        <img src="data:image/jpeg;base64,@item.ImageData" alt="@item.Name" width="150" height="auto" class="object-cover mb-2 rounded mx-auto" />
+                    }
+                    else
+                    {
+                        <div class="w-[150px] h-[150px] mx-auto bg-gray-300 mb-2 font-sans font-bold text-gray-700 flex items-center justify-center">NO IMAGE</div>
+                    }
+                    <div class="">
+                        <h2 class="text-lg font-semibold">@item.Name</h2>
+                        <p class="text-gray-600">@item.Type</p>
+                    </div>
+                    <div class="flex justify-between mt-4">
+                        <button @onclick="(() => OpenEditModal(item))" class="text-blue-600 hover:text-blue-900 transition duration-300">Edit</button>
+                        <button @onclick="(() => DeleteItem(item.Id))" class="text-red-600 hover:text-red-900 transition duration-300">Delete</button>
+                    </div>
+                </div>
+            }
     </div>
 </div>
 
@@ -113,9 +123,41 @@
         showModal = true;
     }
 
+    private void OpenEditModal(ClothingItem item) {
+        currentItem = new ClothingItem {
+                Id = item.Id,
+                Name = item.Name,
+                Type = item.Type,
+                ImageData = item.ImageData != null ? item.ImageData : null 
+            };
+        editingItem = item;
+        selectedFile = null;
+        showModal = true;
+    }
+
     private void CloseModal()
     {
         showModal = false;
+    }
+
+    private async Task DeleteItem(int id)
+    {
+        try
+        {
+            var response = await httpClient.DeleteAsync($"http://localhost:5256/api/closet/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await FetchClothingItems();
+            }
+            else
+            {
+                Console.WriteLine($"Error deleting item: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting item: {ex.Message}");
+        }
     }
 
     private async Task HandleValidSubmit()
@@ -152,8 +194,21 @@
             }
             else
             {
-                // Edit existing item
-                var response = await httpClient.PutAsJsonAsync($"https://localhost:5256/api/closet/{editingItem.Id}", currentItem);
+                    // Edit existing item
+                var content = new MultipartFormDataContent();
+
+                // Serialize the currentItem to JSON
+                var itemJson = JsonSerializer.Serialize(currentItem);
+                content.Add(new StringContent(itemJson), "item");
+
+                if (selectedFile != null)
+                {
+                    var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10)); // 10 MB max
+                    content.Add(fileContent, "image", selectedFile.Name);
+                }
+
+                var response = await httpClient.PutAsync($"http://localhost:5256/api/closet/{editingItem.Id}", content);
+
                 if (response.IsSuccessStatusCode)
                 {
                     await FetchClothingItems();

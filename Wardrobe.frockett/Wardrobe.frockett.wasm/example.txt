@@ -1,131 +1,652 @@
-@* @inject IClothingRepository ClothingRepository *@
+@using Wardrobe.frockett.wasm.Models
+@using System.IO
+@using Microsoft.AspNetCore.Components.Forms
+@using System.Text.Json
 
+@page "/closet"
 
-<div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">Clothing Inventory</h1>
+<div class="container mx-auto">
+    <h1 class="text-3xl font-bold mb-6">Closet</h1>
 
     <div class="mb-4">
-        <button @onclick="OpenAddModal" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        <button @onclick="OpenAddModal"
+            class="transition-all bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
             Add New Item
         </button>
     </div>
 
-    @if (clothingItems == null)
-    {
-        <p class="text-gray-600">Loading...</p>
-    }
-    else if (!clothingItems.Any())
-    {
-        <p class="text-gray-600">No items found.</p>
-    }
-    else
-    {
-        <div class="overflow-x-auto">
-            <table class="min-w-full bg-white">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="py-2 px-4 border-b text-left">Name</th>
-                        <th class="py-2 px-4 border-b text-left">Type</th>
-                        <th class="py-2 px-4 border-b text-left">Image</th>
-                        <th class="py-2 px-4 border-b text-left">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in clothingItems)
-                    {
-                        <tr>
-                            <td class="py-2 px-4 border-b">@item.Name</td>
-                            <td class="py-2 px-4 border-b">@item.Type</td>
-                            <td class="py-2 px-4 border-b">
-                                @if (!string.IsNullOrEmpty(item.ImagePath))
-                                {
-                                    <img src="@item.ImagePath" alt="@item.Name" class="h-16 w-16 object-cover rounded" />
-                                }
-                                else
-                                {
-                                    <span class="text-gray-400">No image</span>
-                                }
-                            </td>
-                            <td class="py-2 px-4 border-b">
-                                <button @onclick="() => OpenEditModal(item)" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-1 px-2 rounded mr-2">
-                                    Edit
-                                </button>
-                                <button @onclick="() => DeleteItem(item.Id)" class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded">
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
-        </div>
-    }
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        
+@foreach
+ 
+(
+var
+ item 
+in
+ clothingItems
+)
+
+        
+{
+
+            
+<
+div
+ 
+class
+=
+"
+bg-white shadow-md rounded-lg p-4
+"
+>
+
+                
+@if
+ 
+(
+item
+.
+ImageData 
+!=
+ 
+null
+)
+
+                
+{
+
+                    
+<
+img
+ 
+src
+=
+"
+data:image/jpeg;base64,@item.ImageData
+"
+ 
+alt
+=
+"
+@item.Name
+"
+ 
+width
+=
+"
+150
+"
+ 
+height
+=
+"
+auto
+"
+ 
+class
+=
+"
+object-cover mb-2 rounded
+"
+ 
+/>
+
+                
+}
+
+                
+<
+h2
+ 
+class
+=
+"
+text-lg font-semibold
+"
+>
+@
+item
+.
+Name
+</
+h2
+>
+
+                
+<
+p
+ 
+class
+=
+"
+text-gray-600
+"
+>
+@
+item
+.
+Type
+</
+p
+>
+
+                
+<
+div
+ 
+class
+=
+"
+mt-2
+"
+>
+
+                    
+<
+button
+ 
+@onclick
+=
+"
+() => OpenEditModal(item)
+"
+
+                        
+class
+=
+"
+bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-1 px-2 rounded mr-2
+"
+>
+
+                        Edit
+                    
+</
+button
+>
+
+                    
+<
+button
+ 
+@onclick
+=
+"
+() => DeleteItem(item.Id)
+"
+
+                        
+class
+=
+"
+bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded
+"
+>
+
+                        Delete
+                    
+</
+button
+>
+
+                
+</
+div
+>
+
+            
+</
+div
+>
+
+        
+}
+
+    </div>
 </div>
 
-@* @if (showModal)
+@if
+(
+showModal
+)
+ 
 {
-    <div class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="modal-overlay">
-        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-            <div class="mt-3 text-center">
-                <h3 class="text-lg leading-6 font-medium text-gray-900">@(editingItem == null ? "Add New Item" : "Edit Item")</h3>
-                <div class="mt-2 px-7 py-3">
-                    <EditForm Model="@currentItem" OnValidSubmit="HandleValidSubmit">
-                        <DataAnnotationsValidator />
-                        <ValidationSummary />
 
-                        <div class="mb-4">
-                            <label for="name" class="block text-gray-700 text-sm font-bold mb-2">Name:</label>
-                            <InputText id="name" @bind-Value="currentItem.Name" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                        </div>
+    
+<
+div
+ 
+class
+=
+"
+fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full
+"
+ 
+id
+=
+"
+modal-overlay
+"
+>
 
-                        <div class="mb-4">
-                            <label for="type" class="block text-gray-700 text-sm font-bold mb-2">Type:</label>
-                            <InputText id="type" @bind-Value="currentItem.Type" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                        </div>
+        
+<
+div
+ 
+class
+=
+"
+relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white
+"
+>
 
-                        <div class="mb-4">
-                            <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Image:</label>
-                            <InputFile OnChange="HandleFileSelection" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
-                        </div>
+            
+<
+div
+ 
+class
+=
+"
+mt-3 text-center
+"
+>
 
-                        <div class="items-center px-4 py-3">
-                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                
+<
+h3
+ 
+class
+=
+"
+text-lg leading-6 font-medium text-gray-900
+"
+>
+@
+(
+editingItem 
+==
+ 
+null
+ 
+?
+ 
+"Add New Item"
+ 
+:
+ 
+"Edit Item"
+)
+</
+h3
+>
+
+                
+<
+div
+ 
+class
+=
+"
+mt-2 px-7 py-3
+"
+>
+
+                    
+<
+EditForm
+ 
+Model
+=
+"
+@currentItem
+"
+ 
+OnValidSubmit
+=
+"
+HandleValidSubmit
+"
+>
+
+                        
+<
+DataAnnotationsValidator
+ 
+/>
+
+                        
+<
+ValidationSummary
+ 
+/>
+
+
+                        
+<
+div
+ 
+class
+=
+"
+mb-4
+"
+>
+
+                            
+<
+label
+ 
+for
+=
+"
+name
+"
+ 
+class
+=
+"
+block text-gray-700 text-sm font-bold mb-2
+"
+>
+Name:
+</
+label
+>
+
+                            
+<
+InputText
+ 
+id
+=
+"
+name
+"
+ 
+@bind-Value
+=
+"
+currentItem.Name
+"
+ 
+class
+=
+"
+shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+"
+ 
+/>
+
+                        
+</
+div
+>
+
+
+                        
+<
+div
+ 
+class
+=
+"
+mb-4
+"
+>
+
+                            
+<
+label
+ 
+for
+=
+"
+type
+"
+ 
+class
+=
+"
+block text-gray-700 text-sm font-bold mb-2
+"
+>
+Type:
+</
+label
+>
+
+                            
+<
+InputText
+ 
+id
+=
+"
+type
+"
+ 
+@bind-Value
+=
+"
+currentItem.Type
+"
+ 
+class
+=
+"
+shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+"
+ 
+/>
+
+                        
+</
+div
+>
+
+
+                        
+<
+div
+ 
+class
+=
+"
+mb-4
+"
+>
+
+                            
+<
+label
+ 
+for
+=
+"
+image
+"
+ 
+class
+=
+"
+block text-gray-700 text-sm font-bold mb-2
+"
+>
+Image:
+</
+label
+>
+
+                            
+<
+InputFile
+ 
+accept
+=
+"
+image/jpeg
+"
+ 
+OnChange
+=
+"
+HandleFileSelection
+"
+ 
+class
+=
+"
+shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+"
+ 
+/>
+
+                        
+</
+div
+>
+
+
+                        
+<
+div
+ 
+class
+=
+"
+items-center px-4 py-3
+"
+>
+
+                            
+<
+button
+ 
+type
+=
+"
+submit
+"
+ 
+class
+=
+"
+px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300
+"
+>
+
                                 Save
-                            </button>
-                        </div>
-                    </EditForm>
-                </div>
-                <div class="items-center px-4 py-3">
-                    <button @onclick="CloseModal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                            
+</
+button
+>
+
+                        
+</
+div
+>
+
+                    
+</
+EditForm
+>
+
+                
+</
+div
+>
+
+                
+<
+div
+ 
+class
+=
+"
+items-center px-4 py-3
+"
+>
+
+                    
+<
+button
+ 
+@onclick
+=
+"
+CloseModal
+"
+ 
+class
+=
+"
+px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300
+"
+>
+
                         Close
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
-} *@
+                    
+</
+button
+>
+
+                
+</
+div
+>
+
+            
+</
+div
+>
+
+        
+</
+div
+>
+
+    
+</
+div
+>
+
+}
+
 
 @code {
-    private List<ClothingItem> clothingItems = new List<ClothingItem>();
+    private List<ClothingItem> clothingItems = new();
     private bool showModal = false;
-    private ClothingItem currentItem = new ClothingItem();
+    private ClothingItem currentItem = new();
     private ClothingItem? editingItem;
+    private HttpClient httpClient = new HttpClient();
+    private IBrowserFile? selectedFile;
 
-    @* protected override async Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        clothingItems = await ClothingRepository.GetAllClothingItemsAsync();
-    } *@
+        await FetchClothingItems();
+    }
 
-    private async Task DeleteItem(int id)
+    private async Task FetchClothingItems()
     {
-        await ClothingRepository.DeleteClothingItemAsync(id);
-        clothingItems = await ClothingRepository.GetAllClothingItemsAsync();
+        try
+        {
+            clothingItems = await httpClient.GetFromJsonAsync<List<ClothingItem>>("http://localhost:5256/api/closet") ?? new List<ClothingItem>();
+        }
+        catch (HttpRequestException ex)
+        {
+            Console.WriteLine($"HTTP request error: {ex}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Unexpected error fetching clothing items: {ex.Message}");
+        }
     }
 
     private void OpenAddModal()
     {
         currentItem = new ClothingItem();
         editingItem = null;
+        selectedFile = null;
         showModal = true;
     }
 
@@ -136,9 +657,10 @@
             Id = item.Id,
             Name = item.Name,
             Type = item.Type,
-            ImagePath = item.ImagePath
+            ImageData = item.ImageData
         };
         editingItem = item;
+        selectedFile = null;
         showModal = true;
     }
 
@@ -149,28 +671,95 @@
 
     private async Task HandleValidSubmit()
     {
-        if (editingItem == null)
+        try
         {
-            await ClothingRepository.AddClothingItemAsync(currentItem);
-        }
-        else
-        {
-            await ClothingRepository.UpdateClothingItemAsync(currentItem);
-        }
+            if (editingItem == null)
+            {
+                // Add new item
+                var content = new MultipartFormDataContent();
 
-        clothingItems = await ClothingRepository.GetAllClothingItemsAsync();
-        CloseModal();
+                var itemJson = JsonSerializer.Serialize(currentItem);
+                content.Add(new StringContent(itemJson), "item");
+
+                if (selectedFile != null)
+                {
+                    var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10));
+                    content.Add(fileContent, "image", selectedFile.Name);
+                }
+
+                var response = await httpClient.PostAsync("http://localhost:5256/api/closet", content);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    await FetchClothingItems();
+                    CloseModal();
+                }
+                else
+                {
+                    Console.WriteLine($"Error adding item: {response.StatusCode}");
+                }
+            }
+            else
+            {
+                // Edit existing item
+                var content = new MultipartFormDataContent();
+
+                var itemJson = JsonSerializer.Serialize(currentItem);
+                content.Add(new StringContent(itemJson), "item");
+
+                if (selectedFile != null)
+                {
+                    var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10));
+                    content.Add(fileContent, "image", selectedFile.Name);
+                }
+
+                var response = await httpClient.PutAsync($"http://localhost:5256/api/closet/{editingItem.Id}", content);
+                if (response.IsSuccessStatusCode)
+                {
+                    await FetchClothingItems();
+                    CloseModal();
+                }
+                else
+                {
+                    Console.WriteLine($"Error updating item: {response.StatusCode}");
+                }
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error handling form submission: {ex.Message}");
+        }
     }
 
     private async Task HandleFileSelection(InputFileChangeEventArgs e)
     {
-        var file = e.File;
-        if (file != null)
+        selectedFile = e.File;
+        if (selectedFile != null)
         {
-            var buffer = new byte[file.Size];
-            await file.OpenReadStream().ReadAsync(buffer);
+            var buffer = new byte[selectedFile.Size];
+            await selectedFile.OpenReadStream().ReadAsync(buffer);
             string imageBase64 = Convert.ToBase64String(buffer);
-            currentItem.ImagePath = $"data:{file.ContentType};base64,{imageBase64}";
+            currentItem.ImageData = $"data:{selectedFile.ContentType};base64,{imageBase64}";
+        }
+    }
+
+    private async Task DeleteItem(int id)
+    {
+        try
+        {
+            var response = await httpClient.DeleteAsync($"http://localhost:5256/api/closet/{id}");
+            if (response.IsSuccessStatusCode)
+            {
+                await FetchClothingItems();
+            }
+            else
+            {
+                Console.WriteLine($"Error deleting item: {response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error deleting item: {ex.Message}");
         }
     }
 }
