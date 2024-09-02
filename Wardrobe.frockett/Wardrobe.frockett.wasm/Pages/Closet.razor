@@ -17,10 +17,26 @@
             Item</button>
     </div>
 
+    @if(isLoading) {
+        <div style="width:100%; text-align:center">
+            <h1 class="my-8 font-semibold text-3xl">Loading...</h1>
+            <div style="display:flex; gap:10px; justify-content:center; align-items:center">
+                <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-current border-e-transparent align-[-0.125em] text-surface motion-reduce:animate-[spin_1.5s_linear_infinite] dark:text-white"
+                    role="status">
+                    <span
+                        class="!absolute !-m-px !h-px !w-px !overflow-hidden !whitespace-nowrap !border-0 !p-0 ![clip:rect(0,0,0,0)]">Loading...</span>
+                </div>
+            </div>
+        </div>
+    }
+    else {
+
+    
         <div class="grid grid-cols-[repeat(auto-fill,_200px)] gap-2 items-center">            
             @foreach (var item in clothingItems)
             {
-                <div class="bg-white shadow-md rounded-lg p-4 flex flex-col justify-end w-max hover:scale-105 transition-all">
+                <div class="bg-white shadow-md rounded-lg p-4 flex flex-col justify-end w-48 h-72 hover:scale-105 transition-all">
+                    <div class="overflow-hidden">
                     @if (item.ImageData != null)
                     {
                         <img src="@GetImageSrc(item.ImageData)" alt="@item.Name" width="150" height="auto" class="object-cover mb-2 rounded mx-auto" />
@@ -29,17 +45,22 @@
                     {
                         <div class="w-[150px] h-[150px] mx-auto bg-gray-300 mb-2 font-sans font-bold text-gray-700 flex items-center justify-center">NO IMAGE</div>
                     }
-                    <div class="">
-                        <h2 class="text-lg font-semibold">@item.Name</h2>
-                        <p class="text-gray-600">@item.Type</p>
                     </div>
-                    <div class="flex justify-between mt-4">
-                        <button @onclick="(() => OpenEditModal(item))" class="px-4 py-2 rounded-lg text-blue-600 hover:text-black hover:bg-gray-300 transition">Edit</button>
-                        <button @onclick="(() => DeleteItem(item.Id))" class="px-4 py-2 rounded-lg text-red-600 hover:text-black hover:bg-gray-300 transition">Delete</button>
+                    <div class="flex flex-col">
+                        <div class="">
+                            <h3 class="font-semibold truncate">@item.Name</h3>
+                            <p class="text-sm text-gray-600">@item.Type</p>
+                        </div>
+                        <div class="flex justify-between mt-1">
+                            <button @onclick="(() => OpenEditModal(item))" class="px-4 py-2 rounded-lg text-blue-600 hover:text-black hover:bg-gray-300 transition">Edit</button>
+                            <button @onclick="(() => DeleteItem(item.Id))" class="px-4 py-2 rounded-lg text-red-600 hover:text-black hover:bg-gray-300 transition">Delete</button>
+                        </div>
                     </div>
                 </div>
             }
     </div>
+
+    }
 </div>
 
 
@@ -67,17 +88,21 @@
                         <div class="mb-4">
                             <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Image (.png or .jpeg):</label>
                             <InputFile accept=".jpg, .jpeg, .png" OnChange="HandleFileSelection" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                            @if (!string.IsNullOrEmpty(errorMessage))
+                            {
+                                <p class="text-red-500 text-xs italic mt-2">@errorMessage</p>
+                            }
                         </div>
 
-                        <div class="items-center px-4 py-3">
-                            <button type="submit" class="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
+                        <div class="items-center px-2">
+                            <button type="submit" class="px-4 py-2 mt-4 bg-blue-500 text-white text-base font-medium rounded-md w-48 shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300">
                                 Save
                             </button>
                         </div>
                     </EditForm>
                 </div>
-                <div class="items-center px-4 py-3">
-                    <button @onclick="CloseModal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">
+                <div class="items-center px-2 py-1">
+                    <button @onclick="CloseModal" class="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-48 shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300">
                         Close
                     </button>
                 </div>
@@ -93,6 +118,8 @@
     private ClothingItem? editingItem;
     private HttpClient httpClient = new HttpClient();
     private IBrowserFile? selectedFile;
+    private bool isLoading = true;
+    private string errorMessage = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
@@ -101,6 +128,7 @@
 
     private async Task FetchClothingItems()
     {
+        isLoading = true;
         try
         {
             clothingItems = await httpClient.GetFromJsonAsync<List<ClothingItem>>("http://localhost:5256/api/closet") ?? new List<ClothingItem>();
@@ -112,6 +140,10 @@
         catch (Exception ex)
         {
             Console.WriteLine($"Unexpected error fetching clothing items: {ex.Message}");
+        }
+        finally 
+        {
+            isLoading = false;
         }
     }
 
@@ -137,6 +169,7 @@
 
     private void CloseModal()
     {
+        errorMessage = string.Empty;
         showModal = false;
     }
 
@@ -176,7 +209,6 @@
         byte[] bytes;
         try
         {
-            // If it doesn't start with the data URI scheme, assume it's just the base64 data
             bytes = Convert.FromBase64String(imageData);
         }
         catch (FormatException)
@@ -204,7 +236,11 @@
 
     private async Task HandleValidSubmit()
     {
-        Console.WriteLine(currentItem);
+        if (!string.IsNullOrEmpty(errorMessage)) 
+        {
+            return;
+        }
+
         try
         {
             if (editingItem == null)
@@ -245,7 +281,7 @@
 
                 if (selectedFile != null)
                 {
-                    var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 10)); // 10 MB max
+                    var fileContent = new StreamContent(selectedFile.OpenReadStream(maxAllowedSize: 1024 * 1024 * 1)); // 1 MB max
                     content.Add(fileContent, "image", selectedFile.Name);
                 }
 
@@ -271,10 +307,17 @@
     private async Task HandleFileSelection(InputFileChangeEventArgs e)
     {
         selectedFile = e.File;
+        errorMessage = string.Empty;
         if (selectedFile != null)
         {
             if (selectedFile.ContentType != "image/jpeg" && selectedFile.ContentType != "image/png") {
-                Console.WriteLine("Only JPEG and PNG files accepted");
+                errorMessage = "Only JPEG and PNG files are accepted.";
+                selectedFile = null;
+                return;
+            }
+
+            if (selectedFile.Size > 1024 * 1024 * 1) {
+                errorMessage = "File size must be less than 1MB.";
                 selectedFile = null;
                 return;
             }
