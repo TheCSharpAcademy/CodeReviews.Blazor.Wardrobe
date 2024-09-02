@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Wardrobe.frockett.api.Models;
 using Wardrobe.frockett.api.Data;
 using Wardrobe.frockett.Repository;
+using Wardrobe.frockett.api.DTOs;
+using System.Runtime.CompilerServices;
 
 namespace Wardrobe.frockett.api.Repository;
 
@@ -14,58 +16,86 @@ public class ClosetRepository : IClosetRepository
         _context = context;
     }
 
-    public async Task<IEnumerable<ClothingItem>> GetAllItemsAsync()
+    public async Task<IEnumerable<ItemDto>> GetAllItemsAsync()
     {
-        return await _context.ClothingItems.ToListAsync();
+        var items = await _context.ClothingItems.ToListAsync();
+        return ConvertToDto(items);
     }
 
-    public async Task<ClothingItem> GetItemByIdAsync(int id)
+    public async Task<ItemDto> GetItemByIdAsync(int id)
     {
-        return await _context.ClothingItems.FindAsync(id);
+        var item = await _context.ClothingItems.FindAsync(id);
+        return ConvertSingleItemDto(item);
     }
 
-    public async Task<ClothingItem> AddItemAsync(ClothingItem item, IFormFile? image)
+    private List<ItemDto> ConvertToDto(List<ClothingItem> clothingItems)
     {
-        
+        return clothingItems.Select(item => ConvertSingleItemDto(item)).ToList();
+    }
+
+    private ItemDto ConvertSingleItemDto(ClothingItem item)
+    {
+        return new ItemDto
+        {
+            Id = item.Id,
+            Name = item.Name,
+            Type = item.Type,
+            ImageData = item.ImageData != null ? Convert.ToBase64String(item.ImageData) : null
+        };
+    }
+
+    private ClothingItem ConvertToDomainModel(ItemDto dto)
+    {
+        return new ClothingItem
+        {
+            Id = dto.Id,
+            Name = dto.Name,
+            Type = dto.Type,
+        };
+    }
+
+    public async Task<ClothingItem> AddItemAsync(ItemDto item, IFormFile? image)
+    {
+
+        ClothingItem newItem = ConvertToDomainModel(item);
+
         if (image != null && image.Length > 0)
         {
             using (var memoryStream = new MemoryStream())
             {
                 await image.CopyToAsync(memoryStream);
-                byte[] imageBytes = memoryStream.ToArray();
-                string base64String = Convert.ToBase64String(imageBytes);
-                item.ImageData = base64String;
+                newItem.ImageData = memoryStream.ToArray();
             }
         }
 
-        _context.ClothingItems.Add(item);
+        _context.ClothingItems.Add(newItem);
         await _context.SaveChangesAsync();
-        return item;
+        return newItem;
     }
 
-    public async Task<ClothingItem> UpdateItemAsync(ClothingItem item, IFormFile? image)
+    public async Task<ClothingItem> UpdateItemAsync(ItemDto item, IFormFile? image)
     {
         var existingItem = await _context.ClothingItems.FindAsync(item.Id);
         if (existingItem == null)
             return null;
 
+        ClothingItem itemToUpdate = ConvertToDomainModel(item);
+
         if (image != null && image.Length > 0)
         {
             using (var memoryStream = new MemoryStream())
             {
                 await image.CopyToAsync(memoryStream);
-                byte[] imageBytes = memoryStream.ToArray();
-                string base64String = Convert.ToBase64String(imageBytes);
-                item.ImageData = base64String;
+                itemToUpdate.ImageData = memoryStream.ToArray();
             }
         }
         else
         {
             if (existingItem.ImageData != null)
-                item.ImageData = existingItem.ImageData;
+                itemToUpdate.ImageData = existingItem.ImageData;
         }
 
-        _context.Entry(existingItem).CurrentValues.SetValues(item);
+        _context.Entry(existingItem).CurrentValues.SetValues(itemToUpdate);
         await _context.SaveChangesAsync();
         return existingItem;
     }

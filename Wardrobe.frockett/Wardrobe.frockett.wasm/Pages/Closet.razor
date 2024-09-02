@@ -17,13 +17,13 @@
             Item</button>
     </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">            
+        <div class="grid grid-cols-[repeat(auto-fill,_200px)] gap-2 items-center">            
             @foreach (var item in clothingItems)
             {
-                <div class="bg-white shadow-md rounded-lg p-4 flex flex-col justify-end">
+                <div class="bg-white shadow-md rounded-lg p-4 flex flex-col justify-end w-max hover:scale-105 transition-all">
                     @if (item.ImageData != null)
                     {
-                        <img src="data:image/jpeg;base64,@item.ImageData" alt="@item.Name" width="150" height="auto" class="object-cover mb-2 rounded mx-auto" />
+                        <img src="@GetImageSrc(item.ImageData)" alt="@item.Name" width="150" height="auto" class="object-cover mb-2 rounded mx-auto" />
                     }
                     else
                     {
@@ -34,8 +34,8 @@
                         <p class="text-gray-600">@item.Type</p>
                     </div>
                     <div class="flex justify-between mt-4">
-                        <button @onclick="(() => OpenEditModal(item))" class="text-blue-600 hover:text-blue-900 transition duration-300">Edit</button>
-                        <button @onclick="(() => DeleteItem(item.Id))" class="text-red-600 hover:text-red-900 transition duration-300">Delete</button>
+                        <button @onclick="(() => OpenEditModal(item))" class="px-4 py-2 rounded-lg text-blue-600 hover:text-black hover:bg-gray-300 transition">Edit</button>
+                        <button @onclick="(() => DeleteItem(item.Id))" class="px-4 py-2 rounded-lg text-red-600 hover:text-black hover:bg-gray-300 transition">Delete</button>
                     </div>
                 </div>
             }
@@ -65,8 +65,8 @@
                         </div>
 
                         <div class="mb-4">
-                            <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Image:</label>
-                            <InputFile accept="image/jpeg" OnChange="HandleFileSelection" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                            <label for="image" class="block text-gray-700 text-sm font-bold mb-2">Image (.png or .jpeg):</label>
+                            <InputFile accept=".jpg, .jpeg, .png" OnChange="HandleFileSelection" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                         </div>
 
                         <div class="items-center px-4 py-3">
@@ -160,6 +160,48 @@
         }
     }
 
+    private string? GetImageSrc(string imageData)
+    {
+        if (string.IsNullOrEmpty(imageData))
+        {
+            return null;
+        }
+
+        // Check if the imageData already contains the data URI scheme
+        if (imageData.StartsWith("data:image/"))
+        {
+            return imageData; // Return as-is if it's already in the correct format
+        }
+
+        byte[] bytes;
+        try
+        {
+            // If it doesn't start with the data URI scheme, assume it's just the base64 data
+            bytes = Convert.FromBase64String(imageData);
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine("Invalid base64 string.");
+            return null;
+        }
+
+        // Check for JPEG file signature
+        if (bytes.Length >= 3 && bytes[0] == 0xFF && bytes[1] == 0xD8 && bytes[2] == 0xFF)
+        {
+            return $"data:image/jpeg;base64,{imageData}";
+        }
+        // Check for PNG file signature
+        else if (bytes.Length >= 4 && bytes[0] == 0x89 && bytes[1] == 0x50 && bytes[2] == 0x4E && bytes[3] == 0x47)
+        {
+            return $"data:image/png;base64,{imageData}";
+        }
+        else
+        {
+            Console.WriteLine("Unknown image file type.");
+            return null;
+        }
+    }
+
     private async Task HandleValidSubmit()
     {
         Console.WriteLine(currentItem);
@@ -194,7 +236,7 @@
             }
             else
             {
-                    // Edit existing item
+                // Edit existing item
                 var content = new MultipartFormDataContent();
 
                 // Serialize the currentItem to JSON
@@ -231,6 +273,12 @@
         selectedFile = e.File;
         if (selectedFile != null)
         {
+            if (selectedFile.ContentType != "image/jpeg" && selectedFile.ContentType != "image/png") {
+                Console.WriteLine("Only JPEG and PNG files accepted");
+                selectedFile = null;
+                return;
+            }
+
             var buffer = new byte[selectedFile.Size];
             await selectedFile.OpenReadStream().ReadAsync(buffer);
             string imageBase64 = Convert.ToBase64String(buffer);

@@ -7,6 +7,7 @@ using Wardrobe.frockett.api.Repository;
 using Wardrobe.frockett.Repository;
 using System.Text.Json;
 using Microsoft.AspNetCore.Razor.TagHelpers;
+using Wardrobe.frockett.api.DTOs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -62,7 +63,7 @@ app.MapPost("/api/closet", async (
     IFormFile? image,
     IClosetRepository repo) =>
 {
-    var clothingItem = JsonSerializer.Deserialize<ClothingItem>(item, new JsonSerializerOptions
+    var clothingItem = JsonSerializer.Deserialize<ItemDto>(item, new JsonSerializerOptions
     {
         PropertyNameCaseInsensitive = true
     });
@@ -83,7 +84,7 @@ app.MapPost("/api/closet", async (
 // PUT update item
 app.MapPut("/api/closet/{id}", async (int id, IFormFile? image, [FromForm] string item, IClosetRepository repo) =>
 {
-    var clothingItem = JsonSerializer.Deserialize<ClothingItem>(item, new JsonSerializerOptions
+    var clothingItem = JsonSerializer.Deserialize<ItemDto>(item, new JsonSerializerOptions
     {
         PropertyNameCaseInsensitive = true
     });
