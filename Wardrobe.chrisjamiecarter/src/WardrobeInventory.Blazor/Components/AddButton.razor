@@ -1,0 +1,9 @@
+﻿<button @onclick="OnClickCallback"
+        type="button"
+        class="btn btn-outline-success btn-sm bi bi-plus-lg w-100">
+    <span class="visually-hidden">Add</span>
+</button>
+
+@code {
+    [Parameter] public EventCallback OnClickCallback { get; set; }
+}
