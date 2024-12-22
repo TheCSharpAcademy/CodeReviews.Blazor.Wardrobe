@@ -1,0 +1,279 @@
+{
+  "openapi": "3.0.1",
+  "info": {
+    "title": "WardrobeInventory.Api | v1",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5273"
+    },
+    {
+      "url": "https://localhost:7238"
+    }
+  ],
+  "paths": {
+    "/api/ImageFiles": {
+      "post": {
+        "tags": [
+          "ImageFiles"
+        ],
+        "operationId": "PostImageFileAsync",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "ContentType": {
+                    "type": "string"
+                  },
+                  "ContentDisposition": {
+                    "type": "string"
+                  },
+                  "Headers": {
+                    "type": "object",
+                    "additionalProperties": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "Length": {
+                    "type": "integer",
+                    "format": "int64"
+                  },
+                  "Name": {
+                    "type": "string"
+                  },
+                  "FileName": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/WardrobeItems/{id}": {
+      "delete": {
+        "tags": [
+          "WardrobeItems"
+        ],
+        "operationId": "DeleteWardrobeItemAsync",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "WardrobeItems"
+        ],
+        "operationId": "GetWardrobeItemAsync",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "WardrobeItems"
+        ],
+        "operationId": "PutWardrobeItemAsync",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WardrobeItemUpdateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WardrobeItemUpdateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WardrobeItemUpdateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/WardrobeItems": {
+      "get": {
+        "tags": [
+          "WardrobeItems"
+        ],
+        "operationId": "GetWardrobeItemsAsync",
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      },
+      "post": {
+        "tags": [
+          "WardrobeItems"
+        ],
+        "operationId": "PostWardrobeItemAsync",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WardrobeItemCreateRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WardrobeItemCreateRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/WardrobeItemCreateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "NullableOfWardrobeItemColours": {
+        "type": "integer",
+        "nullable": true
+      },
+      "NullableOfWardrobeItemMaterials": {
+        "type": "integer",
+        "nullable": true
+      },
+      "NullableOfWardrobeItemSizes": {
+        "type": "integer",
+        "nullable": true
+      },
+      "WardrobeItemCreateRequest": {
+        "required": [
+          "name",
+          "imagePath",
+          "colour",
+          "material",
+          "size"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "imagePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "colour": {
+            "$ref": "#/components/schemas/NullableOfWardrobeItemColours"
+          },
+          "material": {
+            "$ref": "#/components/schemas/NullableOfWardrobeItemMaterials"
+          },
+          "size": {
+            "$ref": "#/components/schemas/NullableOfWardrobeItemSizes"
+          }
+        }
+      },
+      "WardrobeItemUpdateRequest": {
+        "required": [
+          "name",
+          "imagePath",
+          "colour",
+          "material",
+          "size"
+        ],
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "imagePath": {
+            "type": "string",
+            "nullable": true
+          },
+          "colour": {
+            "$ref": "#/components/schemas/NullableOfWardrobeItemColours"
+          },
+          "material": {
+            "$ref": "#/components/schemas/NullableOfWardrobeItemMaterials"
+          },
+          "size": {
+            "$ref": "#/components/schemas/NullableOfWardrobeItemSizes"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "ImageFiles"
+    },
+    {
+      "name": "WardrobeItems"
+    }
+  ]
+}

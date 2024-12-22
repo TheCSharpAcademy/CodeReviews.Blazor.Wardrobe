@@ -1,0 +1,9 @@
+﻿<button @onclick="OnClickCallback"
+        type="button"
+        class="btn btn-outline-danger btn-sm rounded-circle bi bi-trash">
+    <span class="visually-hidden">Delete</span>
+</button>
+
+@code {
+    [Parameter] public EventCallback OnClickCallback { get; set; }
+}
